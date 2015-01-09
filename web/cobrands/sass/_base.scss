@@ -1577,4 +1577,17 @@ table.nicetable {
     }
 }
 
+#goto-report-form {
+    p * {
+        display: inline;
+    }
+    label {
+        font-weight: normal;
+    }
+    #goto-report-id {
+        width: 6em;
+        padding: 1px;
+    }
+}
+
 @import "_admin";
