@@ -137,6 +137,18 @@ sub problem_as_hashref {
         if ( $problem->state eq 'confirmed' ) {
             $hashref->{state} = 'open';
             $hashref->{state_t} = _('Open');
+        } elsif ( $problem->state eq 'closed' ) {
+            $hashref->{state} = 'extern'; # is this correct?
+            $hashref->{state_t} = _('Extern');
+        } elsif ( $problem->state eq 'unable to fix' ) {
+            $hashref->{state} = 'jurisdiction unknown'; # is this correct?
+            $hashref->{state_t} = _('Jurisdiction Unknown');
+        } elsif ( $problem->state eq 'partial' ) {
+            $hashref->{state} = 'not contactable'; # is this correct?
+            $hashref->{state_t} = _('Not contactable');
+        } elsif ( $problem->state eq 'investigating' ) {
+            $hashref->{state} = 'wish'; # is this correct?
+            $hashref->{state_t} = _('Wish');
         } elsif ( $problem->is_fixed ) {
             $hashref->{state} = 'closed';
             $hashref->{state_t} = _('Closed');
