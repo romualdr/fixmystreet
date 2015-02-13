@@ -11,7 +11,7 @@ use Geo::Coordinates::CH1903;
 use Math::Trig;
 use Utils;
 
-use constant ZOOM_LEVELS    => 8;
+use constant ZOOM_LEVELS    => 9;
 use constant DEFAULT_ZOOM   => 5;
 use constant MIN_ZOOM_LEVEL => 0;
 use constant ID_OFFSET      => 2;
@@ -84,8 +84,8 @@ sub latlon_to_tile($$$) {
     my ($x, $y) = Geo::Coordinates::CH1903::from_latlon($lat, $lon);
 
     my $matrix_id = $zoom + ID_OFFSET;
-    my @scales = ( '250000', '125000', '64000', '32000', '16000', '8000', '4000', '2000', '1000', '500' );
-    my $tileOrigin = { lat => 30814423, lon => -29386322 };
+    my @scales = ( '250000', '125000', '64000', '32000', '16000', '8000', '4000', '2000', '1000', '500', '250' );
+    my $tileOrigin = { lat => 30814500, lon => -29386400 };
     my $res = $scales[$matrix_id] / (39.3701 * 96); # OpenLayers.INCHES_PER_UNIT[units] * OpenLayers.DOTS_PER_INCH
 
     my $fx = ( $x - $tileOrigin->{lon} ) / ($res * TILE_SIZE);
@@ -115,8 +115,8 @@ sub tile_to_latlon {
     my ($fx, $fy, $zoom) = @_;
 
     my $matrix_id = $zoom + ID_OFFSET;
-    my @scales = ( '250000', '125000', '64000', '32000', '16000', '8000', '4000', '2000', '1000', '500' );
-    my $tileOrigin = { lat => 30814423, lon => -29386322 };
+    my @scales = ( '250000', '125000', '64000', '32000', '16000', '8000', '4000', '2000', '1000', '500', '250' );
+    my $tileOrigin = { lat => 30814500, lon => -29386400 };
     my $res = $scales[$matrix_id] / (39.3701 * 96); # OpenLayers.INCHES_PER_UNIT[units] * OpenLayers.DOTS_PER_INCH
 
     my $x = $fx * $res * TILE_SIZE + $tileOrigin->{lon};
