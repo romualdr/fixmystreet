@@ -155,9 +155,9 @@ sub get_file {
 
 sub get_image_data {
     my ($self, %args) = @_;
-    my $num = $args{num} || 1;
+    my $num = $args{num} || 0;
 
-    my $data = $self->get_raw_image_data( 0 ) # for test, because of broken IE/Windows caching
+    my $data = $self->get_raw_image_data( $num ) # for test, because of broken IE/Windows caching
         or return;
 
     my ($fileid, $photo) = @$data;
@@ -177,13 +177,13 @@ sub get_image_data {
 }
 
 sub delete_cached {
-    my ($self, $index) = @_;
+    my ($self) = @_;
     my $object = $self->object or return;
 
     unlink glob FixMyStreet->path_to(
         'web',
         'photo',
-        $object->id . (defined $index ? ".$index" : '') . '.*'
+        $object->id . '.*'
     );
 }
 
@@ -202,7 +202,7 @@ sub rotate_image {
         object => $self->object,
     });
 
-    $self->delete_cached($index);
+    $self->delete_cached();
 
     return $new_set->data; # e.g. new comma-separated fileid
 }
