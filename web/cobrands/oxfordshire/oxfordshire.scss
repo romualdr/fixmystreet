@@ -76,6 +76,83 @@ body {
   }
 }
 
+body.mappage {
+  #oxford-wrapper {
+    width: auto;
+    padding: 0;
+    background: transparent;
+  }
+
+  #oxford-header {
+    width: 100%;
+    padding: 0;
+    background-color: #069b01; // picked from header.jpg
+    background-position: 100% 40%;
+    overflow: auto;
+    min-height: 60px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+
+    & > * {
+      display: none;
+      // what about div.oxford-user ??
+    }
+
+    a.logo {
+      display: block;
+      float: left;
+      height: 60px;
+      width: 200px;
+      margin: 0;
+      background: transparent url("/cobrands/oxfordshire/images/logo-light-green.gif") no-repeat 50% 50%;
+      text-indent: -999px;
+
+      * {
+        display: none;
+      }
+    }
+
+    #navigation {
+      display: block;
+      position: static;
+      float: right;
+    }
+
+    .menubar {
+      display: block;
+      width: auto;
+      border-top: none;
+      padding: 0;
+
+      // override super-specific "#navigation .menubar .menu-inner .menu>li>a"
+      // selector from OCC header styles (see below)
+      .menu-inner .menu {
+        li {
+          margin-bottom: 0;
+        }
+
+        a {
+          line-height: 20px;
+          padding-top: 20px;
+          padding-bottom: 20px;
+        }
+      }
+    }
+  }
+
+  .wrapper .table-cell {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .content {
+    box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+  }
+
+  #oxford-footer {
+    display: none;
+  }
+}
+
 
 
 #oxford-main-menu {
