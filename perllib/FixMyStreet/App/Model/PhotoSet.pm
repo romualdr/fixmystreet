@@ -177,13 +177,13 @@ sub get_image_data {
 }
 
 sub delete_cached {
-    my ($self, $index) = @_;
+    my ($self) = @_;
     my $object = $self->object or return;
 
     unlink glob FixMyStreet->path_to(
         'web',
         'photo',
-        $object->id . (defined $index ? ".$index" : '') . '.*'
+        $object->id . '.*'
     );
 }
 
@@ -202,7 +202,7 @@ sub rotate_image {
         object => $self->object,
     });
 
-    $self->delete_cached($index);
+    $self->delete_cached();
 
     return $new_set->data; # e.g. new comma-separated fileid
 }
