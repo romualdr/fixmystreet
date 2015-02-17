@@ -77,6 +77,9 @@ body {
 }
 
 body.mappage {
+
+  $mappage-header-height: 60px;
+
   #oxford-wrapper {
     width: auto;
     padding: 0;
@@ -84,13 +87,18 @@ body.mappage {
   }
 
   #oxford-header {
-    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2; // 1 more than `body.mappage .content`
+    width: auto;
+    min-height: $mappage-header-height;
     padding: 0;
     background-color: #069b01; // picked from header.jpg
     background-position: 100% 40%;
     overflow: auto;
-    min-height: 60px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
 
     & > * {
       display: none;
@@ -100,7 +108,7 @@ body.mappage {
     a.logo {
       display: block;
       float: left;
-      height: 60px;
+      height: $mappage-header-height;
       width: 200px;
       margin: 0;
       background: transparent url("/cobrands/oxfordshire/images/logo-light-green.gif") no-repeat 50% 50%;
@@ -132,8 +140,8 @@ body.mappage {
 
         a {
           line-height: 20px;
-          padding-top: 20px;
-          padding-bottom: 20px;
+          padding-top: ($mappage-header-height - 20px) / 2;
+          padding-bottom: ($mappage-header-height - 20px) / 2;
         }
       }
     }
@@ -142,10 +150,12 @@ body.mappage {
   .wrapper .table-cell {
     padding-left: 0;
     padding-right: 0;
+    padding-top: $mappage-header-height;
   }
 
   .content {
-    box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    // note: `body.mappage .content` also has z-index: 1
   }
 
   #oxford-footer {
