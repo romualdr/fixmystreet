@@ -55,5 +55,9 @@ sub pin_colour {
     return 'yellow';
 }
 
+sub reports_ordering {
+    return { -desc => 'confirmed' };
+}
+
 1;
 
