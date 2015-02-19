@@ -908,5 +908,14 @@ sub get_country_for_ip_address {
     return 0;
 }
 
-1;
 
+=head2 problem_response_days
+
+Returns the number of working days that are expected to elapse
+between the problem being reported and it being responded to by
+the council/body.
+
+=cut
+sub problem_response_days { return undef; }
+
+1;
