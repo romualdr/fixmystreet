@@ -239,6 +239,41 @@ body.mappage {
   }
 }
 
+.report-list {
+  list-style: none;
+  margin-left: 0;
+
+  li {
+    margin-bottom: 0;
+
+    a {
+      display: block;
+      padding: 1em;
+      padding-left: 5em;
+      background: transparent url(/i/pin-yellow.png) no-repeat 1em center;
+
+      &:hover, &:focus {
+        background-color: #fff;
+        text-decoration: none;
+      }
+    }
+  }
+
+  h3, p {
+    margin: 0;
+  }
+
+  h3 {
+    color: inherit;
+    margin-bottom: 0.2em;
+  }
+
+  p {
+    font-size: 0.8em;
+    color: #777;
+  }
+}
+
 // So as not to interfere with the Oxfordshire footer, make the fixed nav ("get updates" etc) static.
 .shadow-wrap {
     width: 432px;
