@@ -144,6 +144,18 @@ function fixmystreet_onload() {
             backgroundHeight: 40,
             backgroundXOffset: -10,
             backgroundYOffset: -35
+        },
+        'small': {
+            externalGraphic: fixmystreet.pin_prefix + "pin-${colour}-small.png",
+            graphicWidth: 24,
+            graphicHeight: 32,
+            graphicXOffset: -12,
+            graphicYOffset: -32,
+            backgroundGraphic: fixmystreet.pin_prefix + "pin-shadow-small.png",
+            backgroundWidth: 30,
+            backgroundHeight: 15,
+            backgroundXOffset: -4,
+            backgroundYOffset: -15
         }
     });
     var pin_layer_options = {
