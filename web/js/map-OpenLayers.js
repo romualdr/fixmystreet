@@ -69,6 +69,7 @@ function fixmystreet_zoomToBounds(bounds) {
 
 function fms_markers_list(pins, transform) {
     var markers = [];
+    var size = fms_marker_size_for_zoom(fixmystreet.map.getZoom() + fixmystreet.zoomOffset);
     for (var i=0; i<pins.length; i++) {
         var pin = pins[i];
         var loc = new OpenLayers.Geometry.Point(pin[1], pin[0]);
@@ -81,13 +82,30 @@ function fms_markers_list(pins, transform) {
         }
         var marker = new OpenLayers.Feature.Vector(loc, {
             colour: pin[2],
-            size: pin[5] || 'normal',
+            size: pin[5] || size,
             id: pin[3],
             title: pin[4] || ''
         });
         markers.push( marker );
     }
     return markers;
+}
+
+function fms_marker_size_for_zoom(zoom) {
+    var cobrand = $('meta[name="cobrand"]').attr('content');
+    if (cobrand === 'oxfordshire') {
+        return (zoom < 13) ? 'small' : 'normal';
+    } else {
+        return 'normal';
+    }
+}
+
+function fms_markers_resize() {
+    var size = fms_marker_size_for_zoom(fixmystreet.map.getZoom());
+    for (var i = 0; i < fixmystreet.markers.features.length; i++) {
+        fixmystreet.markers.features[i].attributes.size = size;
+    }
+    fixmystreet.markers.redraw();
 }
 
 function fixmystreet_onload() {
@@ -209,6 +227,12 @@ function fixmystreet_onload() {
         });
         fixmystreet.map.addControl( fixmystreet.select_feature );
         fixmystreet.select_feature.activate();
+
+        // Zoom-level-specific pin sizes on Oxfordshire
+        var cobrand = $('meta[name="cobrand"]').attr('content');
+        if (cobrand === 'oxfordshire') {
+            fixmystreet.map.events.register( 'zoomend', null, fms_markers_resize );
+        }
     } else if (fixmystreet.page == 'new') {
         fixmystreet_activate_drag();
     }
