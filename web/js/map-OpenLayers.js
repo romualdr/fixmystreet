@@ -92,9 +92,20 @@ function fms_markers_list(pins, transform) {
 }
 
 function fms_marker_size_for_zoom(zoom) {
+    // zoomOffset seems to change between pages, so check that the zoom level
+    // we're working with is in the expected range
+    if (zoom < fixmystreet.zoomOffset) {
+        zoom += fixmystreet.zoomOffset;
+    }
     var cobrand = $('meta[name="cobrand"]').attr('content');
     if (cobrand === 'oxfordshire') {
-        return (zoom < 13) ? 'small' : 'normal';
+        if (zoom >= 15) {
+            return 'normal';
+        } else if (zoom >= 13) {
+            return 'small';
+        } else {
+            return 'mini';
+        }
     } else {
         return 'normal';
     }
@@ -174,6 +185,13 @@ function fixmystreet_onload() {
             backgroundHeight: 15,
             backgroundXOffset: -4,
             backgroundYOffset: -15
+        },
+        'mini': {
+            externalGraphic: fixmystreet.pin_prefix + "pin-${colour}-mini.png",
+            graphicWidth: 16,
+            graphicHeight: 20,
+            graphicXOffset: -8,
+            graphicYOffset: -20,
         }
     });
     var pin_layer_options = {
