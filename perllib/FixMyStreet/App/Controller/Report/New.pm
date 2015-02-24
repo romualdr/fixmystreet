@@ -76,6 +76,7 @@ partial
 
 use constant COUNCIL_ID_BARNET => 2489;
 use constant COUNCIL_ID_BROMLEY => 2482;
+use constant COUNCIL_ID_CAMDEN => 2505;
 
 sub report_new : Path : Args(0) {
     my ( $self, $c ) = @_;
@@ -626,6 +627,7 @@ sub setup_categories_and_bodies : Private {
 
     } elsif ($first_area->{id} != COUNCIL_ID_BROMLEY 
           && $first_area->{id} != COUNCIL_ID_BARNET 
+          && $first_area->{id} != COUNCIL_ID_CAMDEN 
           && $first_area->{type} eq 'LBO') {
 
         $bodies_to_list{ $first_body->id } = 1;
