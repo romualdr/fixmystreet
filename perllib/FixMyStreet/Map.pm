@@ -127,7 +127,13 @@ sub map_pins {
         my $colour = $c->cobrand->pin_colour( $p, 'around' );
         [ $p->latitude, $p->longitude,
           $colour,
-          $p->id, $p->title_safe
+          $p->id, $p->title_safe,
+          # TODO: field index 5 is expected by FMS & app JS to contain pin size,
+          # but this field has never been populated... Leave it empty for now.
+          # Perhaps pins could be serialised hashes, avoiding the need for
+          # fields to be ordered.
+          undef,
+          $p->category
         ]
     } @$around_map, @$nearby;
 
