@@ -119,6 +119,34 @@ function fms_markers_resize() {
     fixmystreet.markers.redraw();
 }
 
+function fms_categories_update() {
+    var bbox = fixmystreet.bbox_strategy.getMapBounds().toBBOX();
+    var default_categories = [{label: "Everything", value: ""}];
+    $.getJSON("/ajax/categories", {bbox: bbox})
+        .done(function(data) {
+            var categories = default_categories.slice();
+            for (var i = 0; i < data.categories.length; i++) {
+                categories.push({value: data.categories[i]});
+            }
+            fms_set_categories_options(categories);
+        })
+        .fail(function() {
+            fms_set_categories_options(default_categories);
+        });
+}
+
+function fms_set_categories_options(options) {
+    var select = $("#categories");
+    select.prop("disabled", false);
+    var old_value = select.find("option:selected").val();
+    select.empty();
+    for (var i = 0; i < options.length; i++) {
+        var value = options[i].value;
+        var label = options[i].label || value;
+        $("<option>").val(value).html(label).appendTo(select);
+    }
+}
+
 function fixmystreet_onload() {
     if ( fixmystreet.area.length ) {
         for (var i=0; i<fixmystreet.area.length; i++) {
@@ -250,6 +278,7 @@ function fixmystreet_onload() {
         var cobrand = $('meta[name="cobrand"]').attr('content');
         if (cobrand === 'oxfordshire') {
             fixmystreet.map.events.register( 'zoomend', null, fms_markers_resize );
+            fixmystreet.markers.events.register( 'loadend', null, fms_categories_update );
         }
     } else if (fixmystreet.page == 'new') {
         fixmystreet_activate_drag();
