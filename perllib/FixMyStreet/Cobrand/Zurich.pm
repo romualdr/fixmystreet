@@ -817,4 +817,14 @@ sub admin_stats {
 
 sub default_extra_layout { {} }
 
+sub problem_confirm_email_extras {
+    my ($self, $c, $report) = @_;
+    my $user = $report->user or return;
+    my $confirmed_reports = $user->problems->search({
+        extra => { like => '%email_confirmed%' },
+    })->count;
+
+    $c->stash->{email_confirmed} = $confirmed_reports;
+}
+
 1;
