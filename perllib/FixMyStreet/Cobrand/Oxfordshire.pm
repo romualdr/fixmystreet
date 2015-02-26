@@ -47,6 +47,8 @@ sub users_can_hide { return 1; }
 
 sub default_show_name { 0 }
 
+sub combine_tabs_on_around { return 1; }
+
 sub pin_colour {
     my ( $self, $p, $context ) = @_;
     return 'grey' if $p->state eq 'not responsible';
