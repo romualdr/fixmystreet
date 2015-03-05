@@ -540,8 +540,8 @@ sub determine_location_from_tile_click : Private {
     );
 
     # store it on the stash
-    $c->stash->{latitude}  = $latitude;
-    $c->stash->{longitude} = $longitude;
+    ($c->stash->{latitude}, $c->stash->{longitude}) =
+        map { Utils::truncate_coordinate($_) } ($latitude, $longitude);
 
     # set a flag so that the form is not considered submitted. This will prevent
     # errors showing on the fields.
@@ -1090,10 +1090,6 @@ sub generate_map : Private {
     my $latitude  = $c->stash->{latitude};
     my $longitude = $c->stash->{longitude};
 
-    ( $c->stash->{short_latitude}, $c->stash->{short_longitude} ) =
-      map { Utils::truncate_coordinate($_) }
-      ( $c->stash->{latitude}, $c->stash->{longitude} );
-
     # Don't do anything if the user skipped the map
     if ( $c->stash->{report}->used_map ) {
         $c->stash->{page} = 'new';
@@ -1136,23 +1132,10 @@ sub redirect_or_confirm_creation : Private {
     if ( $report->confirmed ) {
         # Subscribe problem reporter to email updates
         $c->forward( 'create_reporter_alert' );
-        my $report_uri;
-
-        if ( $c->cobrand->moniker eq 'fixmybarangay' && $c->user->from_body && $c->stash->{external_source_id}) {
-            $report_uri = $c->uri_for( '/report', $report->id, undef, { external_source_id => $c->stash->{external_source_id} } );
-        } elsif ( $c->cobrand->never_confirm_reports && $report->non_public ) {
-            $c->log->info( 'cobrand was set to always confirm reports and report was non public, success page showed');
-            $c->stash->{template} = 'report_created.html';
-            return 1;
-        } else {
-            $report_uri = $c->cobrand->base_url_for_report( $report ) . $report->url;
-        }
-        $c->log->info($report->user->id . ' was logged in, redirecting to /report/' . $report->id);
-        if ( $c->sessionid ) {
-            $c->flash->{created_report} = 'loggedin';
-        }
-        $c->res->redirect($report_uri);
-        $c->detach;
+        $c->log->info($report->user->id . ' was logged in, showing confirmation page for ' . $report->id);
+        $c->stash->{created_report} = 'loggedin';
+        $c->stash->{template} = 'tokens/confirm_problem.html';
+        return 1;
     }
 
     # otherwise create a confirm token and email it to them.

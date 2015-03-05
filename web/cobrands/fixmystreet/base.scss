@@ -32,70 +32,98 @@
   background: url($image-sprite) -3px -3px no-repeat;
 }
 
-.confirmation-header {
-  padding: 2em 1em;
+.next-steps {
+  margin: 0 -1em; // counteract padding on parent
+  background-color: #faf7e2;
+}
 
-  @media only screen and (min-width: 48em) {
-    padding: 3em 0;
-    text-align: center;
+.next-steps__step {
+  box-sizing: border-box;
+  padding: 1em;
+
+  & + .next-steps__step {
+    border-top: 1px solid #ede8c9;
   }
 
-  h1 {
+  h2 {
     margin-top: 0;
   }
 
   p {
-    font-size: 1.3em;
-    line-height: 1.4em;
+    color: #666666;
     margin-bottom: 0;
-  }
-
-  p + p {
-    margin-top: 0.5em;
   }
 }
 
-.advert-mobile-apps {
-  margin: 0 -1em; // counteract padding on parent
-  background-color: #fff9cc;
-  padding: 2em;
+.next-steps__step__cta {
+  @include pie-clearfix;
+  padding-top: 0.4em; // extra padding between buttons and previous paragraph
 
-  @media only screen and (min-width: 48em) {
-    padding-left: 37%;
-    background: #fff9cc url(/cobrands/fixmystreet/images/advert-app-watercolour.jpg) 7% 50% no-repeat;
-  }
+  a {
+    float: left;
+    margin: 1em 0.6em 0 0;
 
-  h1 {
-    margin-top: 0;
-  }
-
-  p {
-    font-size: 1.3em;
-    line-height: 1.4em;
-  }
-
-  .app-links {
-    @include clearfix;
-    margin-bottom: 1em;
-
-    a {
-      float: left;
-      margin-right: 1em;
-    }
-
-    a[href*="itunes.apple.com"] {
-      margin-top: 3px; // compensate for slightly smaller itunes button
+    &:last-child {
+      margin-right: 0;
     }
   }
 
-  .desktop-advice {
-    clear: left;
-    font-size: 1em;
-    line-height: 1.2em;
-    color: #745D17; // brown
+  .next-steps__step--goodies {
+    min-height: 37px; // stop absolutely positioned img overlapping bottom of parent element
 
-    @media only screen and (min-width: 48em) {
-      width: 28em; // break line at a nice point
+    img {
+      // absolute positioning to overlap floated goodies image to the right
+      position: absolute;
+      max-width: none;
     }
+  }
+}
+
+.next-steps__step--goodies {
+  @include pie-clearfix;
+
+  .goodies-preview {
+    float: right;
+    margin-left: 1em;
+    margin-right: -0.5em;
+  }
+}
+
+#homepage-ab-test {
+  display: none; // header_extra.html will override this if Analytics tells it to
+
+  a {
+    display: inline-block;
+    cursor: pointer;
+  }
+
+  #cta-report {
+    padding: 0.4em 1em;
+    margin-top: 0.5em;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #333;
+    background-color: #ffd000;
+    border-radius: 0.3em;
+    box-shadow: 0 3px 5px 0 rgba(0,0,0,0.2);
+    background-image: linear-gradient(rgba(255,255,255,0.3), transparent);
+    text-shadow: 0 1px 0 rgba(255,255,255,0.6);
+    border: 2px solid #BB9900;
+    text-decoration: none;
+
+    &:hover,
+    &:focus {
+      background-color: #FFDB3E;
+    }
+
+    &:active {
+      position: relative;
+      top: 1px;
+      box-shadow: 0 2px 2px 0 rgba(0,0,0,0.3);
+    }
+  }
+
+  #cta-view {
+    margin: 0.5em 0 1em 0;
   }
 }
