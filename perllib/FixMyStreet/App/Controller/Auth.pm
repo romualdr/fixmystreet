@@ -260,6 +260,24 @@ sub ajax_sign_in : Path('ajax/sign_in') {
     my $return = {};
     if ( $c->forward( 'sign_in' ) ) {
         $return->{name} = $c->user->name;
+        $return->{confirmed} = $c->user->flagged;
+    } else {
+        $return->{error} = 1;
+    }
+
+    my $body = JSON->new->utf8(1)->encode( $return );
+    $c->res->content_type('application/json; charset=utf-8');
+    $c->res->body($body);
+
+    return 1;
+}
+
+sub ajax_create_account : Path('ajax/create_account') {
+    my ( $self, $c ) = @_;
+
+    my $return = {};
+    if ( $c->forward( 'email_sign_in' ) ) {
+        $return->{message} = 'NEEDS_CONFIRMATION';
     } else {
         $return->{error} = 1;
     }
