@@ -984,7 +984,7 @@ sub check_for_errors : Private {
     }
 
     # all good if no errors
-    return 1 unless scalar keys %field_errors || $c->stash->{login_success};
+    return 1 unless scalar keys %field_errors;
 
     $c->stash->{field_errors} = \%field_errors;
 
