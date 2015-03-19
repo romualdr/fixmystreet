@@ -766,6 +766,8 @@ sub display_location : Private {
                 colour    => $colour,
                 id        => $p->id,
                 title     => $p->title_safe,
+                detail    => $p->detail,
+                photo     => $p->get_photo_params,
                 state     => $p->state,
             }
         } @$on_map_all, @$around_map;
