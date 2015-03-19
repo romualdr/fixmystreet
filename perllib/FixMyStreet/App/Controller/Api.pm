@@ -124,6 +124,7 @@ sub my_reports : Path('my_reports') : Args(0) {
 		        detail    => $problem->detail,
 		        body      => $problem->body,
 	            state     => $problem->is_fixed ? 'fixed' : $problem->is_closed ? 'closed' : 'confirmed',
+                confirmed_pp => $problem->confirmed ? $problem->confirmed->strftime('%H:%M %Y-%m-%d') : '',
 	        };
 	        my $state = $problem->is_fixed ? 'fixed' : $problem->is_closed ? 'closed' : 'confirmed';
 	        push @{ $problems->{$state} }, $problem;
@@ -429,6 +430,7 @@ sub add_row {
         url 	  => $problem->url,
         detail    => $problem->detail,
         body      => $problem->body,
+        confirmed_pp => $problem->confirmed ? $problem->confirmed->strftime('%H:%M %Y-%m-%d') : '',
     };
 }
 
@@ -528,7 +530,7 @@ sub load_updates : Private {
         	name      => $update->name,	
         	text 	  => $update->text,
         	photo 	  => $update->get_photo_params,
-        	date 	  => $update->confirmed ? $c->cobrand->prettify_dt( $update->confirmed ): '',
+        	confirmed_pp => $update->confirmed ? $update->confirmed->strftime('%H:%M %Y-%m-%d') :'',
         };
     }
     while (my $update = $questionnaires->next) {
@@ -567,6 +569,7 @@ sub format_problem_for_display : Private {
         {
             report => $c->cobrand->problem_as_hashref( $problem, $c ),
             updates => $updates,
+            confirmed_pp => $problem->confirmed ? $problem->confirmed->strftime('%H:%M %Y-%m-%d') : '',
         }
     );
     $c->res->body( $content );
@@ -767,7 +770,7 @@ sub display_location : Private {
                 id              => $p->id,
                 title           => $p->title_safe,
                 detail          => $p->detail,
-                confirmed_pp    => $p->confirmed ? $c->cobrand->prettify_dt( $p->confirmed ) : '',
+                confirmed_pp    => $p->confirmed ? $p->confirmed->strftime('%H:%M %Y-%m-%d') : '',
                 photo           => $p->get_photo_params,
                 state           => $p->state,
             }
