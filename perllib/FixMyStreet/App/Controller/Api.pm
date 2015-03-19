@@ -761,14 +761,15 @@ sub display_location : Private {
             my $p = (ref $_ eq 'FixMyStreet::App::Model::DB::Nearby') ? $_->problem : $_;
             my $colour = $c->cobrand->pin_colour( $p, 'around' );
             {
-                latitude  => $p->latitude,
-                longitude => $p->longitude,
-                colour    => $colour,
-                id        => $p->id,
-                title     => $p->title_safe,
-                detail    => $p->detail,
-                photo     => $p->get_photo_params,
-                state     => $p->state,
+                latitude        => $p->latitude,
+                longitude       => $p->longitude,
+                colour          => $colour,
+                id              => $p->id,
+                title           => $p->title_safe,
+                detail          => $p->detail,
+                confirmed_pp    => $p->confirmed ? $c->cobrand->prettify_dt( $p->confirmed ) : '',
+                photo           => $p->get_photo_params,
+                state           => $p->state,
             }
         } @$on_map_all, @$around_map;
     }
