@@ -96,23 +96,36 @@ sub my_reports : Path('my_reports') : Args(0) {
     my $problems = {};
 
     my $params = {
-        state => [ FixMyStreet::DB::Result::Problem->visible_states() ],
+        'me.state' => [ FixMyStreet::DB::Result::Problem->visible_states() ],
     };
-    $params = {
-        %{ $c->cobrand->problems_clause },
-        %$params
-    } if $c->cobrand->problems_clause;
-
 
     if ( $c->forward( '/auth/sign_in' ) ) {
 
 	    my $rs = $c->user->problems->search( $params, {
 	        order_by => { -desc => 'confirmed, lastupdate' },
-	        rows => 50
-	    } )->page( $p_page );
+	        rows => 50,
+	    })->page( $p_page );
+        
 
 	    while ( my $problem = $rs->next ) {
 	        $c->stash->{has_content}++;
+
+            my $updates = $c->model('DB::Comment')->search(
+                { problem_id => $problem->id, state => 'confirmed' },
+                { order_by => 'confirmed' }
+            );
+
+            my $updates_json = [];
+            while(my $com = $updates->next){
+
+                print $com ? Dumper($com->text) : 'nope';
+                push @$updates_json,{
+                    text => $com->text,
+                    name => $com->name,
+                    created => $com->created->strftime('%H:%M %Y-%m-%d'),
+                }
+            }  
+
 	        push @$pins, {
 	            latitude  => $problem->latitude,
 	            longitude => $problem->longitude,
@@ -125,7 +138,13 @@ sub my_reports : Path('my_reports') : Args(0) {
 		        body      => $problem->body,
 	            state     => $problem->is_fixed ? 'fixed' : $problem->is_closed ? 'closed' : 'confirmed',
                 confirmed_pp => $problem->confirmed ? $problem->confirmed->strftime('%H:%M %Y-%m-%d') : '',
+                created => $problem->created ? $problem->created->strftime('%H:%M %Y-%m-%d') : '',
+                comments => $updates_json,
 	        };
+
+            
+
+
 	        my $state = $problem->is_fixed ? 'fixed' : $problem->is_closed ? 'closed' : 'confirmed';
 	        push @{ $problems->{$state} }, $problem;
 	    }
@@ -145,16 +164,22 @@ sub my_reports : Path('my_reports') : Args(0) {
 	    $c->stash->{updates_pager} = $rs->pager;
 
 	    $c->stash->{page} = 'my';
-	    FixMyStreet::Map::display_map(
-	        $c,
-	        latitude  => $pins->[0]{latitude},
-	        longitude => $pins->[0]{longitude},
-	        pins      => $pins,
-	        any_zoom  => 1,
-	    )
-	        if @$pins;
 
-	   	$json = JSON->new->utf8(1)->encode(
+        #print Dumper($updates[6]);
+        while(my $u = $rs->next){
+            #print Dumper($u->text);
+        }
+	    # FixMyStreet::Map::display_map(
+	    #     $c,
+	    #     latitude  => $pins->[0]{latitude},
+	    #     longitude => $pins->[0]{longitude},
+	    #     pins      => $pins,
+	    #     any_zoom  => 1,
+	    # )
+	    #     if @$pins;
+
+        #$json = JSON->new->utf8(1)->encode(
+	   	$json = JSON->new->allow_blessed->convert_blessed->encode(
 	        {
 	            reports => $pins,
 	        }
@@ -431,6 +456,7 @@ sub add_row {
         detail    => $problem->detail,
         body      => $problem->body,
         confirmed_pp => $problem->confirmed ? $problem->confirmed->strftime('%H:%M %Y-%m-%d') : '',
+        created   => $problem->created ? $problem->created->strftime('%H:%M %Y-%m-%d') : '',
     };
 }
 
@@ -531,6 +557,7 @@ sub load_updates : Private {
         	text 	  => $update->text,
         	photo 	  => $update->get_photo_params,
         	confirmed_pp => $update->confirmed ? $update->confirmed->strftime('%H:%M %Y-%m-%d') :'',
+            created => $update->created ? $update->created->strftime('%H:%M %Y-%m-%d') : '',
         };
     }
     while (my $update = $questionnaires->next) {
@@ -568,8 +595,7 @@ sub format_problem_for_display : Private {
     my $content = JSON->new->allow_blessed->convert_blessed->encode(
         {
             report => $c->cobrand->problem_as_hashref( $problem, $c ),
-            updates => $updates,
-            confirmed_pp => $problem->confirmed ? $problem->confirmed->strftime('%H:%M %Y-%m-%d') : '',
+            updates => $updates ? $updates : '',
         }
     );
     $c->res->body( $content );
@@ -771,6 +797,7 @@ sub display_location : Private {
                 title           => $p->title_safe,
                 detail          => $p->detail,
                 confirmed_pp    => $p->confirmed ? $p->confirmed->strftime('%H:%M %Y-%m-%d') : '',
+                created         => $p->created ? $p->created->strftime('%H:%M %Y-%m-%d') : '',
                 photo           => $p->get_photo_params,
                 state           => $p->state,
             }
