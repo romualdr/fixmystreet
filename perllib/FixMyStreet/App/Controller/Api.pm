@@ -117,7 +117,7 @@ sub my_reports : Path('my_reports') : Args(0) {
 
             my $updates_json = [];
             while(my $com = $updates->next){
-                
+
                 push @$updates_json,{
                     text => $com->text,
                     name => $com->name,
@@ -164,21 +164,8 @@ sub my_reports : Path('my_reports') : Args(0) {
 
 	    $c->stash->{page} = 'my';
 
-        #print Dumper($updates[6]);
-        while(my $u = $rs->next){
-            #print Dumper($u->text);
-        }
-	    # FixMyStreet::Map::display_map(
-	    #     $c,
-	    #     latitude  => $pins->[0]{latitude},
-	    #     longitude => $pins->[0]{longitude},
-	    #     pins      => $pins,
-	    #     any_zoom  => 1,
-	    # )
-	    #     if @$pins;
-
         #$json = JSON->new->utf8(1)->encode(
-	   	$json = JSON->new->allow_blessed->convert_blessed->encode(
+	   	$json = JSON->new->utf8(1)->allow_blessed->convert_blessed->encode(
 	        {
 	            reports => $pins,
 	        }
@@ -474,7 +461,7 @@ sub display : Path('report/') : Args(1) {
       )
     {
 	    $c->res->content_type('application/json; charset=utf-8');
-	    my $content = JSON->new->allow_blessed->convert_blessed->encode(
+	    my $content = JSON->new->utf8(1)->allow_blessed->convert_blessed->encode(
 	        {
 	            error => 'report not found.'
 	        }
@@ -494,7 +481,7 @@ sub _display : Private {
     	$c->forward( 'format_problem_for_display' );
     }else{
 	    $c->res->content_type('application/json; charset=utf-8');
-	    my $content = JSON->new->allow_blessed->convert_blessed->encode(
+	    my $content = JSON->new->utf8(1)->allow_blessed->convert_blessed->encode(
 	        {
 	            error => 'report not found.'
 	        }
@@ -591,7 +578,7 @@ sub format_problem_for_display : Private {
 
 
     $c->res->content_type('application/json; charset=utf-8');
-    my $content = JSON->new->allow_blessed->convert_blessed->encode(
+    my $content = JSON->new->utf8(1)->allow_blessed->convert_blessed->encode(
         {
             report => $c->cobrand->problem_as_hashref( $problem, $c ),
             updates => $updates ? $updates : '',
@@ -656,7 +643,7 @@ sub around_me : Path('around') : Args(0) {
     }else{
 
     	$c->res->content_type('application/json; charset=utf-8');
-	    my $content = JSON->new->allow_blessed->convert_blessed->encode(
+	    my $content = JSON->new->utf8(1)->allow_blessed->convert_blessed->encode(
 	        {
 	            error => 'Invalid coords or address.'
 	        }
