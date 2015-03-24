@@ -7,6 +7,7 @@ use List::MoreUtils qw(any);
 use POSIX qw(strcoll);
 use RABX;
 use JSON;
+use Utils;
 
 BEGIN { extends 'Catalyst::Controller'; }
 
@@ -833,6 +834,103 @@ sub display_location : Private {
     $c->res->body( $content );
 
     return 1;
+}
+
+=head2 report_update
+
+Update a report.
+
+=cut
+
+sub report_update : Path('report/update') : Args(0)  {
+    my ( $self, $c ) = @_;
+
+    my $id = $c->req->param('id');
+    my $email = $c->req->param('email');
+    my $error = '';
+
+    # try to load a report if the id is a number
+    my $problem
+      = ( !$id || $id =~ m{\D} ) # is id non-numeric?
+      ? undef                    # ...don't even search
+      : $c->cobrand->problems->find( { id => $id } );
+
+    # check that the problem is suitable to show.
+    if ( !$problem || ($problem->state eq 'unconfirmed' && !$c->cobrand->show_unconfirmed_reports) || $problem->state eq 'partial' ) {
+        $error = 'Report not found';
+    }
+    elsif ( $problem->state eq 'hidden' ) {
+        $error = 'Report removed';
+    } elsif ( $problem->non_public ) {
+        if ( !$c->user || $c->user->id != $problem->user->id ) {
+            $error = 'Report not visible';
+        }
+    }
+
+    # check user
+    unless ( $c->forward( '/auth/sign_in', [ $email ] ) ) {
+        $error = 'Error with your email/password';
+    }
+
+    if($error eq ''){
+
+        my %params =
+          map { $_ => scalar $c->req->param($_) } ( 'update', 'name', 'fixed', 'state', 'reopen' );
+
+        $params{update} =
+          Utils::cleanup_text( $params{update}, { allow_multiline => 1 } );
+
+        my $name = Utils::trim_text( $params{name} );
+        my $anonymous = $c->req->param('may_show_name') ? 0 : 1;
+
+        $params{reopen} = 0 unless $c->user && $c->user->id == $problem->user->id;
+
+        my $update = $c->model('DB::Comment')->new(
+            {
+                text         => $params{update},
+                name         => $name,
+                problem      => $problem,
+                state        => 'confirmed',
+                mark_fixed   => $params{fixed} ? 1 : 0,
+                mark_open    => $params{reopen} ? 1 : 0,
+                cobrand      => $c->cobrand->moniker,
+                cobrand_data => '',
+                lang         => 'GB',
+                anonymous    => $anonymous,
+                user_id      => $c->user->id,
+            }
+        );
+
+        $update->insert;
+        $update->confirm;
+        $update->update;
+
+        $c->log->info('good');
+
+        $c->res->content_type('application/json; charset=utf-8');
+        my $content = JSON->new->utf8(1)->encode(
+            {
+                message => 'updated',
+
+            }
+        );
+        $c->res->body( $content );
+
+    }else{
+        $c->log->info($error);
+
+        $c->res->content_type('application/json; charset=utf-8');
+        my $content = JSON->new->utf8(1)->encode(
+            {
+                error => $error,
+
+            }
+        );
+        $c->res->body( $content );
+    }
+
+    return 1;
+
 }
 
 
