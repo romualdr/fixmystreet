@@ -117,8 +117,7 @@ sub my_reports : Path('my_reports') : Args(0) {
 
             my $updates_json = [];
             while(my $com = $updates->next){
-
-                print $com ? Dumper($com->text) : 'nope';
+                
                 push @$updates_json,{
                     text => $com->text,
                     name => $com->name,
