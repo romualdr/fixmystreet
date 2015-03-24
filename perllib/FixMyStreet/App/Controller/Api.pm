@@ -772,9 +772,27 @@ sub display_location : Private {
     my @pins;
     unless ($c->req->param('no_pins') || $c->cobrand->moniker eq 'emptyhomes') {
         @pins = map {
+
             # Here we might have a DB::Problem or a DB::Nearby, we always want the problem.
             my $p = (ref $_ eq 'FixMyStreet::App::Model::DB::Nearby') ? $_->problem : $_;
             my $colour = $c->cobrand->pin_colour( $p, 'around' );
+
+            my $updates = $c->model('DB::Comment')->search(
+                { problem_id => $p->id, state => 'confirmed' },
+                { order_by => 'confirmed' }
+            );
+
+            my $updates_json = [];
+            while(my $com = $updates->next){
+
+                push @$updates_json,{
+                    text => $com->text,
+                    name => $com->name,
+                    created => $com->created->strftime('%H:%M %Y-%m-%d'),
+                }
+            }  
+
+
             {
                 latitude        => $p->latitude,
                 longitude       => $p->longitude,
@@ -786,6 +804,7 @@ sub display_location : Private {
                 created         => $p->created ? $p->created->strftime('%H:%M %Y-%m-%d') : '',
                 photo           => $p->get_photo_params,
                 state           => $p->state,
+                comments        => $updates_json,
             }
         } @$on_map_all, @$around_map;
     }
