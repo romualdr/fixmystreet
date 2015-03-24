@@ -9,6 +9,7 @@
 # Email: matthew@mysociety.org. WWW: http://www.mysociety.org/
 
 PATH=/usr/local/bin:/usr/bin:/bin
+FMS = /home/brian/FixMyStreet/fixmystreet
 
 # send-reports has three rows so that its 8am entry can be run with --verbose to send a morning summary of anything that's gone wrong
 5,10,15,20,25,30,35,40,45,50,55 * * * * "$FMS/commonlib/bin/run-with-lockfile.sh" -n "$FMS/send-reports.lock" "$FMS/bin/send-reports" || echo "stalled?"

@@ -102,7 +102,7 @@ sub my_reports : Path('my_reports') : Args(0) {
     if ( $c->forward( '/auth/sign_in' ) ) {
 
 	    my $rs = $c->user->problems->search( $params, {
-	        order_by => { -desc => 'confirmed, lastupdate' },
+	        order_by => { -desc => 'created' },
 	        rows => 50,
 	    })->page( $p_page );
         

@@ -26,6 +26,6 @@ for dir in $DIRS; do
     if [ -e "$dir/config.rb" ]; then
         $COMPASS compile --output-style compressed $dir
     else
-        $SASS --scss --update --style compressed $dir
+        $SASS --scss --update --style compressed $dir -E "UTF-8"
     fi
 done
