@@ -31,6 +31,31 @@ sub index : Path : Args(0) {
     return 1;
 }
 
+sub problem_as_hashref : Private {
+    my $c = shift;
+    my $problem = shift;
+
+    return {
+        id        => $problem->id,
+        title     => $problem->title,
+        category  => $problem->category,
+        detail    => $problem->detail,
+        latitude  => $problem->latitude,
+        longitude => $problem->longitude,
+        postcode  => $problem->postcode,
+        state     => $problem->state,
+        state_t   => _( $problem->state ),
+        used_map  => $problem->used_map,
+        is_fixed  => $problem->fixed_states->{ $problem->state } ? 1 : 0,
+        photo     => $problem->get_photo_params,
+        meta      => $problem->confirmed ? $problem->meta_line( $c ) : '',
+        confirmed => $problem->confirmed ? $problem->confirmed->strftime('%H:%M %Y-%m-%d'): '',
+        created   => $problem->created ? $problem->created->strftime('%H:%M %Y-%m-%d') : '',
+        creator   => $problem->name ? $problem->name : '', 
+    };
+}
+
+
 sub all_reports : Path('councils') : Args(0){
 	my ( $self, $c ) = @_;
 
@@ -126,27 +151,14 @@ sub my_reports : Path('my_reports') : Args(0) {
                 }
             }  
 
-	        push @$pins, {
-	            latitude  => $problem->latitude,
-	            longitude => $problem->longitude,
-	            colour    => $c->cobrand->pin_colour( $problem, 'my' ),
-	            id        => $problem->id,
-	            title     => $problem->title,
-	            photo 	  => $problem->get_photo_params,
-		        url 	  => $problem->url,
-		        detail    => $problem->detail,
-		        body      => $problem->body,
-	            state     => $problem->is_fixed ? 'fixed' : $problem->is_closed ? 'closed' : 'confirmed',
-                confirmed_pp => $problem->confirmed ? $problem->confirmed->strftime('%H:%M %Y-%m-%d') : '',
-                created => $problem->created ? $problem->created->strftime('%H:%M %Y-%m-%d') : '',
+            my $problem_formatted = problem_as_hashref($c, $problem);
+            my $comments = {
                 comments => $updates_json,
-	        };
+            };
 
-            
-
-
-	        my $state = $problem->is_fixed ? 'fixed' : $problem->is_closed ? 'closed' : 'confirmed';
-	        push @{ $problems->{$state} }, $problem;
+	        push @$pins, { %$problem_formatted, %$comments};
+	        #my $state = $problem->is_fixed ? 'fixed' : $problem->is_closed ? 'closed' : 'confirmed';
+	        #push @{ $problems->{$state} }, $problem;
 	    }
 	    $c->stash->{problems_pager} = $rs->pager;
 	    $c->stash->{problems} = $problems;
@@ -172,8 +184,6 @@ sub my_reports : Path('my_reports') : Args(0) {
 	        }
 	    );
 
-	    $c->log->info('Good');
-
     }else{
 
 	    $json = JSON->new->utf8(1)->encode(
@@ -181,8 +191,6 @@ sub my_reports : Path('my_reports') : Args(0) {
 	            error => 'login failed',
 	        }
 	    );
-
-	    $c->log->info('Error');
     }
 
     $c->res->content_type('application/json; charset=utf-8');
@@ -432,19 +440,7 @@ sub load_and_group_problems : Private {
 sub add_row {
     my ( $c, $problem, $body, $problems, $pins ) = @_;
     push @{$problems->{$body}}, $problem;
-    push @$pins, {
-        latitude  => $problem->latitude,
-        longitude => $problem->longitude,
-        colour    => $c->cobrand->pin_colour( $problem, 'reports' ),
-        id        => $problem->id,
-        title     => $problem->title_safe,
-        photo 	  => $problem->get_photo_params,
-        url 	  => $problem->url,
-        detail    => $problem->detail,
-        body      => $problem->body,
-        confirmed_pp => $problem->confirmed ? $problem->confirmed->strftime('%H:%M %Y-%m-%d') : '',
-        created   => $problem->created ? $problem->created->strftime('%H:%M %Y-%m-%d') : '',
-    };
+    push @$pins, problem_as_hashref($c, $problem);
 }
 
 =head2 report_display
@@ -543,8 +539,8 @@ sub load_updates : Private {
         	name      => $update->name,	
         	text 	  => $update->text,
         	photo 	  => $update->get_photo_params,
-        	confirmed_pp => $update->confirmed ? $update->confirmed->strftime('%H:%M %Y-%m-%d') :'',
-            created => $update->created ? $update->created->strftime('%H:%M %Y-%m-%d') : '',
+        	confirmed => $update->confirmed ? $update->confirmed->strftime('%H:%M %Y-%m-%d') :'',
+            created   => $update->created ? $update->created->strftime('%H:%M %Y-%m-%d') : '',
         };
     }
     while (my $update = $questionnaires->next) {
@@ -581,7 +577,7 @@ sub format_problem_for_display : Private {
     $c->res->content_type('application/json; charset=utf-8');
     my $content = JSON->new->utf8(1)->allow_blessed->convert_blessed->encode(
         {
-            report => $c->cobrand->problem_as_hashref( $problem, $c ),
+            report => problem_as_hashref($c, $problem),
             updates => $updates ? $updates : '',
         }
     );
@@ -772,41 +768,31 @@ sub display_location : Private {
     # create a list of all the pins
     my @pins;
     unless ($c->req->param('no_pins') || $c->cobrand->moniker eq 'emptyhomes') {
-        @pins = map {
 
+        @pins = map {
             # Here we might have a DB::Problem or a DB::Nearby, we always want the problem.
             my $p = (ref $_ eq 'FixMyStreet::App::Model::DB::Nearby') ? $_->problem : $_;
             my $colour = $c->cobrand->pin_colour( $p, 'around' );
 
             my $updates = $c->model('DB::Comment')->search(
                 { problem_id => $p->id, state => 'confirmed' },
-                { order_by => 'confirmed' }
+                { order_by => { -asc =>'confirmed'} }
             );
 
             my $updates_json = [];
             while(my $com = $updates->next){
 
                 push @$updates_json,{
-                    text => $com->text,
-                    name => $com->name,
+                    text    => $com->text,
+                    name    => $com->name,
                     created => $com->created->strftime('%H:%M %Y-%m-%d'),
                 }
             }  
 
+            my $problem_formatted = problem_as_hashref($c, $p);
+            $problem_formatted->{comments} = $updates_json;
+            $problem_formatted;
 
-            {
-                latitude        => $p->latitude,
-                longitude       => $p->longitude,
-                colour          => $colour,
-                id              => $p->id,
-                title           => $p->title_safe,
-                detail          => $p->detail,
-                confirmed_pp    => $p->confirmed ? $p->confirmed->strftime('%H:%M %Y-%m-%d') : '',
-                created         => $p->created ? $p->created->strftime('%H:%M %Y-%m-%d') : '',
-                photo           => $p->get_photo_params,
-                state           => $p->state,
-                comments        => $updates_json,
-            }
         } @$on_map_all, @$around_map;
     }
 
@@ -858,8 +844,7 @@ sub report_update : Path('report/update') : Args(0)  {
     # check that the problem is suitable to show.
     if ( !$problem || ($problem->state eq 'unconfirmed' && !$c->cobrand->show_unconfirmed_reports) || $problem->state eq 'partial' ) {
         $error = 'Report not found';
-    }
-    elsif ( $problem->state eq 'hidden' ) {
+    } elsif ( $problem->state eq 'hidden' ) {
         $error = 'Report removed';
     } elsif ( $problem->non_public ) {
         if ( !$c->user || $c->user->id != $problem->user->id ) {
@@ -905,25 +890,20 @@ sub report_update : Path('report/update') : Args(0)  {
         $update->confirm;
         $update->update;
 
-        $c->log->info('good');
-
         $c->res->content_type('application/json; charset=utf-8');
         my $content = JSON->new->utf8(1)->encode(
             {
                 message => 'updated',
-
             }
         );
         $c->res->body( $content );
 
     }else{
-        $c->log->info($error);
 
         $c->res->content_type('application/json; charset=utf-8');
         my $content = JSON->new->utf8(1)->encode(
             {
                 error => $error,
-
             }
         );
         $c->res->body( $content );
