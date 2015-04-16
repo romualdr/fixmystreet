@@ -158,7 +158,8 @@ use Moose;
 use namespace::clean -except => [ 'meta' ];
 use Utils;
 
-with 'FixMyStreet::Roles::Abuser';
+with 'FixMyStreet::Roles::Abuser',
+     'FixMyStreet::Roles::Extra';
 
 =head2
 
@@ -679,6 +680,10 @@ sub local_coords {
     if ($self->cobrand eq 'zurich') {
         my ($x, $y) = Geo::Coordinates::CH1903::from_latlon($self->latitude, $self->longitude);
         return ( int($x+0.5), int($y+0.5) );
+    }
+    else {
+        # return a dummy value until this function is implemented.  useful for testing.
+        return (0, 0);
     }
 }
 

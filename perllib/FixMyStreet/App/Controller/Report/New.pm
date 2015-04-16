@@ -74,7 +74,6 @@ partial
 
 =cut
 
-use constant COUNCIL_ID_BARNET => 2489;
 use constant COUNCIL_ID_BROMLEY => 2482;
 
 sub report_new : Path : Args(0) {
@@ -624,18 +623,6 @@ sub setup_categories_and_bodies : Private {
             _('Empty public building - school, hospital, etc.')
         );
 
-    } elsif ($first_area->{id} != COUNCIL_ID_BROMLEY 
-          && $first_area->{id} != COUNCIL_ID_BARNET 
-          && $first_area->{type} eq 'LBO') {
-
-        $bodies_to_list{ $first_body->id } = 1;
-        my @local_categories;
-        @local_categories =  sort keys %{ Utils::london_categories() };
-        @category_options = (
-            _('-- Pick a category --'),
-            @local_categories 
-        );
-
     } else {
 
         # keysort does not appear to obey locale so use strcoll (see i18n.t)
@@ -649,8 +636,9 @@ sub setup_categories_and_bodies : Private {
             unless ( $seen{$contact->category} ) {
                 push @category_options, $contact->category;
 
-                $category_extras{ $contact->category } = $contact->extra
-                    if $contact->extra;
+                my $metas = $contact->get_extra_fields;
+                $category_extras{ $contact->category } = $metas
+                    if scalar @$metas;
 
                 $non_public_categories{ $contact->category } = 1 if $contact->non_public;
             }
@@ -663,6 +651,9 @@ sub setup_categories_and_bodies : Private {
             push @category_options, _('Other') if $seen{_('Other')};
         }
     }
+
+    $c->cobrand->munge_category_list(\@category_options, \@contacts, \%category_extras)
+        if $c->cobrand->can('munge_category_list');
 
     if ($c->cobrand->can('hidden_categories')) {
         my %hidden_categories = map { $_ => 1 }
@@ -851,15 +842,6 @@ sub process_report : Private {
             $report->extra( \%extra );
         }
 
-    } elsif ($first_area->{id} != COUNCIL_ID_BROMLEY 
-          && $first_area->{id} != COUNCIL_ID_BARNET 
-          && $first_area->{type} eq 'LBO') {
-
-        unless ( Utils::london_categories()->{ $report->category } ) {
-            $c->stash->{field_errors}->{category} = _('Please choose a category');
-        }
-        $report->bodies_str( $first_body->id );
-
     } elsif ( $report->category ) {
 
         # FIXME All contacts were fetched in setup_categories_and_bodies,
@@ -889,8 +871,9 @@ sub process_report : Private {
             if $body_string && @{ $c->stash->{missing_details_bodies} };
         $report->bodies_str($body_string);
 
-        my @extra = ();
-        my $metas = $contacts[0]->extra;
+        my @extra;
+        # NB: we are only checking extras for the *first* retrieved contact.
+        my $metas = $contacts[0]->get_extra_fields();
 
         foreach my $field ( @$metas ) {
             if ( lc( $field->{required} ) eq 'true' ) {
@@ -913,7 +896,7 @@ sub process_report : Private {
 
         if ( @extra ) {
             $c->stash->{report_meta} = { map { $_->{name} => $_ } @extra };
-            $report->extra( \@extra );
+            $report->set_extra_fields( @extra );
         }
     } elsif ( @{ $c->stash->{bodies_to_list} } ) {
 
