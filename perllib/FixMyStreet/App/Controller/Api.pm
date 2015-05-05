@@ -79,6 +79,8 @@ sub all_reports : Path('councils') : Args(0){
     	};
     }
 
+
+
     eval {
         my $data = File::Slurp::read_file(
             FixMyStreet->path_to( '../data/all-reports.json' )->stringify
@@ -93,22 +95,26 @@ sub all_reports : Path('councils') : Args(0){
 	    );
 
         $c->res->body($json);
+        $c->res->content_type('application/json; charset=utf-8');
         $c->stash->{fixed} = $j->{fixed};
         $c->stash->{open} = $j->{open};
     };
 
     if ($@) {
-        $c->stash->{message} = _("There was a problem showing the All Reports page. Please try again later.");
-        if ($c->config->{STAGING_SITE}) {
-            $c->stash->{message} .= '</p><p>Perhaps the bin/update-all-reports script needs running. Use: bin/update-all-reports</p><p>'
-                . sprintf(_('The error was: %s'), $@);
-        }
-        $c->stash->{template} = 'errors/generic.html';
-        return;
-    }
+        my $error = JSON->new->utf8(1)->encode(
+            {
+                error => 'ERROR_COUNCILS',
+                msg   => 'Error getting councils',
+            }
+        );
 
-    # Down here so that error pages aren't cached.
-    $c->response->header('Cache-Control' => 'max-age=3600');
+        $c->res->body($error);
+        $c->res->content_type('application/json; charset=utf-8');
+
+        # Down here so that error pages aren't cached.
+        $c->response->header('Cache-Control' => 'max-age=3600');
+        return 1;
+    }
 }
 
 sub my_reports : Path('my_reports') : Args(0) {
