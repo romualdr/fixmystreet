@@ -83,7 +83,7 @@ sub all_reports : Path('councils') : Args(0){
         my $data = File::Slurp::read_file(
             FixMyStreet->path_to( '../data/all-reports.json' )->stringify
         );
-        my $j = JSON->new->utf8->decode($data);
+        my $j = JSON->new->utf8(1)->decode($data);
         
        	my $json = JSON->new->utf8(1)->encode(
 	        {
