@@ -1,0 +1,21 @@
+/* COLOURS */
+
+$orange: #f39c12;
+$wetasphalt: #34495e;
+
+$primary: $orange;
+$primary_b: #000000;
+$primary_text: #222222;
+
+$base_bg: $wetasphalt;
+$base_fg: #000;
+
+$map_nav_bg: $wetasphalt;
+$nav_fg: #000;
+$nav_fg_hover: $primary;
+
+$col_click_map: $wetasphalt;
+$col_click_map_dark: darken($wetasphalt, 10%);
+
+$col_fixed_label: #27ae60;
+$col_fixed_label_dark: #24a058;
