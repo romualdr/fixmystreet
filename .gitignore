@@ -4,6 +4,7 @@
 ._*
 .prove
 
+.htpasswd
 .vagrant
 .bundle
 .DS_Store
