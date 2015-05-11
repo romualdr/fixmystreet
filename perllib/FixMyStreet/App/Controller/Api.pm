@@ -181,9 +181,6 @@ sub my_reports : Path('my_reports') : Args(0) {
 	    $c->stash->{updates} = \@updates;
 	    $c->stash->{updates_pager} = $rs->pager;
 
-	    $c->stash->{page} = 'my';
-
-        #$json = JSON->new->utf8(1)->encode(
 	   	$json = JSON->new->utf8(1)->allow_blessed->convert_blessed->encode(
 	        {
 	            reports => $pins,
