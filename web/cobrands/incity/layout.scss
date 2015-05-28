@@ -1,2 +1,77 @@
 @import "_colours";
 @import "../sass/layout";
+
+//Other pages
+#site-logo{
+  display: block;
+  width: 175px;
+  height: 40px;
+  top: 1.2em;
+  background: url('/cobrands/incity/images/logo_web_1.png') no-repeat;
+  text-indent: -999999px;
+  position: absolute;
+  z-index:2;
+}
+
+// Frontpage
+body.frontpage {
+
+  #site-logo{
+    top:3em;
+    width: 300px;
+    height: 60px;
+    background: url('/cobrands/incity/images/logo_web_0.png') no-repeat;
+  }
+
+}
+
+div.container footer div.tablewrapper{
+	width:100%;
+}
+
+body.twothirdswidthpage,
+body.fullwidthpage {
+    .container {
+        .content {
+            box-shadow: none;
+            padding: 1em;
+            margin-bottom: 0em;
+            footer {
+                margin-top: 0em;
+                margin-bottom: -1em;
+                .tablewrapper {
+                    padding-top: 2em;
+                    padding-bottom: 3em;
+                    background: $base_bg;
+                    color: $base_fg;
+                    a:link,
+                    a:visited {
+                        color: $primary;
+                    }
+                    #footer-mobileapps {
+                        a {
+                            padding-left: 0.5em;
+                        }
+                    }
+                    h4 {
+                        font-weight: normal;
+                        padding-bottom: 0.5em;
+                    }
+                }
+
+                a.platform-logo {
+                    vertical-align: baseline;
+                    display: block;
+                    background-position: top left;
+                    background-repeat: no-repeat;
+                    background-size: auto 1.5em;
+                    text-indent: -1000%;
+                    height: 1.7em;
+                    width: 16em;
+                    padding-right: 0.25em;
+                }
+            }
+        }
+    }
+
+}
