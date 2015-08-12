@@ -1,15 +1,5 @@
 [% INCLUDE 'admin/header.html' title=loc('Summary') -%]
 
-<div class="fms-admin-info fms-admin-floated hidden">
-This is the administration interface for [% PROCESS 'site-name.html' -%]. If you
-need any help or guidance, there is <a href="http://fixmystreet.org/">plenty of
-online documentation</a>. The FixMyStreet Platform is
-<a href="https://github.com/mysociety/fixmystreet">actively supported</a> by
-its developers, and has a community of people using or working on the code.
-Please <a href="http://fixmystreet.org/community/">sign up to the mailing list
-or get in touch</a> to let us know about your use of the FixMyStreet Platform,
-and to receive notices of updates.
-</div>
 
 [% IF total_bodies == 0 %]
   <p class="fms-admin-info">
@@ -44,7 +34,99 @@ and to receive notices of updates.
     </p>
 [% END -%]
 
-[% PROCESS states title=loc('Problem breakdown by state') object=problems %]
+<!-- [% PROCESS states title=loc('Problem breakdown by state') object=problems %]
+
+
+    0 action scheduled
+    0 closed
+    56 confirmed
+    0 duplicate
+    0 fixed
+    0 fixed - council
+    0 fixed - user
+    0 hidden
+    0 in progress
+    0 internal referral
+    0 investigating
+    0 not responsible
+    0 partial
+    0 planned
+    0 unable to fix
+    0 unconfirmed
+
+
+ -->
+
+[% FOREACH p IN problems %]
+    [% IF loop.first %]
+    <h2>[% loc('Problem breakdown by state') %]</h2>
+    <ul>
+    [% END %]
+
+    [% IF (loc('Open') == 'Ouvert') %]
+
+        [% SWITCH p.key %]
+
+            [%   CASE 'action scheduled' %]
+                <li>[% (p.value) %] planifié</li>
+
+            [%   CASE 'closed' %]
+                <li>[% (p.value) %] clos</li>
+
+            [%   CASE 'confirmed' %]
+                <li>[% (p.value) %] ouvert</li>
+
+            [%   CASE 'duplicate' %]
+                <li>[% (p.value) %] dupliqué</li>
+
+            [%   CASE 'fixed' %]
+                <li>[% (p.value) %] résolu</li>
+
+            [%   CASE 'fixed - council' %]
+                <li>[% (p.value) %] résolu - admnistration</li>
+
+            [%   CASE 'fixed - user' %]
+                <li>[% (p.value) %] résolu - usager</li>
+
+            [%   CASE 'hidden' %]
+                <li>[% (p.value) %] cachés</li>
+
+            [%   CASE 'in progress' %]
+                <li>[% (p.value) %] en cours</li>
+
+            [%   CASE 'internal referral' %]
+                <li>[% (p.value) %] référence interne</li>
+
+            [%   CASE 'investigating' %]
+                <li>[% (p.value) %] en examen</li>
+
+            [%   CASE 'not responsible' %]
+                <li>[% (p.value) %] pas responsable</li>
+
+            [%   CASE 'partial' %]
+                <li>[% (p.value) %] partiel</li>
+
+            [%   CASE 'planned' %]
+                <li>[% (p.value) %] action programmée</li>
+                
+            [%   CASE 'unable to fix' %]
+                <li>[% (p.value) %] ne peut etre résolu</li> 
+                               
+            [%   CASE 'unconfirmed' %]
+                <li>[% (p.value) %] non confirmé</li>
+
+
+        [% END %]
+
+    [% ELSE %]
+<!--         <li>[% (p.value) %] [% (p.key) %]</li> -->
+        <li>No french [% loc('Open') %]</li> 
+    [% END %]
+
+    [% '</ul>' IF loop.last %]
+[% END %]
+
+
 
 [% PROCESS states title=loc('Update breakdown by state') object=comments %]
 
