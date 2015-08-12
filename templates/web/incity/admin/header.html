@@ -1,0 +1,16 @@
+[% INCLUDE 'header.html' admin = 1, bodyclass = 'fullwidthpage admin' %]
+<style type="text/css">
+dt { clear: left; float: left; font-weight: bold; }
+dd { margin-left: 8em; }
+.adminhidden { color: #666666; }
+.error { color: red; }
+select { width: auto; }
+</style>
+
+    <p><strong>[% loc('InCity admin:') %]</strong>
+    [%- FOREACH link IN allowed_links %]
+    <a href="[% c.uri_for( link ) %]">[% allowed_pages.$link.0 %]</a>
+    [% IF NOT loop.last %]|[% END %]
+    [% END %]</p>
+
+    <h1>[% title %]</h1>
