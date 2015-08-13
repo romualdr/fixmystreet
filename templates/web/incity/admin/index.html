@@ -119,8 +119,8 @@
         [% END %]
 
     [% ELSE %]
-<!--         <li>[% (p.value) %] [% (p.key) %]</li> -->
-        <li>No french [% loc('Open') %]</li> 
+       <li>[% (p.value) %] [% (p.key) %]</li>
+
     [% END %]
 
     [% '</ul>' IF loop.last %]
@@ -129,6 +129,79 @@
 
 
 [% PROCESS states title=loc('Update breakdown by state') object=comments %]
+
+
+[% FOREACH c IN comments %]
+    [% IF loop.first %]
+    <h2>[% loc('Problem breakdown by state') %]</h2>
+    <ul>
+    [% END %]
+
+    [% IF (loc('Open') == 'Ouvert') %]
+
+        [% SWITCH c.key %]
+
+            [%   CASE 'action scheduled' %]
+                <li>[% (c.value) %] planifié</li>
+
+            [%   CASE 'closed' %]
+                <li>[% (c.value) %] clos</li>
+
+            [%   CASE 'confirmed' %]
+                <li>[% (c.value) %] ouvert</li>
+
+            [%   CASE 'duplicate' %]
+                <li>[% (c.value) %] dupliqué</li>
+
+            [%   CASE 'fixed' %]
+                <li>[% (c.value) %] résolu</li>
+
+            [%   CASE 'fixed - council' %]
+                <li>[% (c.value) %] résolu - admnistration</li>
+
+            [%   CASE 'fixed - user' %]
+                <li>[% (c.value) %] résolu - usager</li>
+
+            [%   CASE 'hidden' %]
+                <li>[% (c.value) %] cachés</li>
+
+            [%   CASE 'in progress' %]
+                <li>[% (c.value) %] en cours</li>
+
+            [%   CASE 'internal referral' %]
+                <li>[% (c.value) %] référence interne</li>
+
+            [%   CASE 'investigating' %]
+                <li>[% (c.value) %] en examen</li>
+
+            [%   CASE 'not responsible' %]
+                <li>[% (c.value) %] pas responsable</li>
+
+            [%   CASE 'partial' %]
+                <li>[% (c.value) %] partiel</li>
+
+            [%   CASE 'planned' %]
+                <li>[% (c.value) %] action programmée</li>
+                
+            [%   CASE 'unable to fix' %]
+                <li>[% (c.value) %] ne peut etre résolu</li> 
+                               
+            [%   CASE 'unconfirmed' %]
+                <li>[% (c.value) %] non confirmé</li>
+
+
+        [% END %]
+
+    [% ELSE %]
+       <li>[% (c.value) %] [% (c.key) %]</li>
+
+    [% END %]
+
+    [% '</ul>' IF loop.last %]
+[% END %]
+
+
+
 
 [% FOREACH category IN categories %]
     [% IF loop.first %]
