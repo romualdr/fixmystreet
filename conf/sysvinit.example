@@ -13,10 +13,10 @@
 # http://richard.wallman.org.uk/2010/02/howto-deploy-a-catalyst-application-using-fastcgi-and-nginx/
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-SITE_HOME=/var/www/fixmystreet
+SITE_HOME=/home/brian/FixMyStreet
 NAME=fixmystreet
 DESC="FixMyStreet app server"
-USER=fms
+USER=brian
 
 echo $DAEMON
 test -f $DAEMON || exit 0

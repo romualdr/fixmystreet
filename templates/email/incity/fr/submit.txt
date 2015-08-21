@@ -1,4 +1,4 @@
-Sujet: Signalement: <?=$values['title']?>
+Sujet: Signalement <?=$values['title']?>
 
 Pour <?=$values['bodies_name']?>,
 

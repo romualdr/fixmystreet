@@ -1,4 +1,4 @@
-Objet: Détail de votre compte [% INCLUDE 'site-name.txt' | trim %].
+Subject: Détail de votre compte [% INCLUDE 'site-name.txt' | trim %].
 
 S'il vous plaît cliquez sur le lien ci-dessous pour confirmer votre adresse e-mail.
 
