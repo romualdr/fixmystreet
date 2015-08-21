@@ -12,7 +12,7 @@ merci de vous rendre sur ce lien:
 
 <?=$values['has_photo']?>----------
 
-Name: <?=$values['name']?>
+Nom: <?=$values['name']?>
 
 Email: <?=$values['email']?>
 
@@ -28,5 +28,5 @@ Longitude: <?=$values['longitude']?>
 
 La réponse à ce mail ira directement à l’utilisateur qui a signaler le problème.
 
-<?=$values['signature']?>
+[% INCLUDE 'signature.txt' %]
 
