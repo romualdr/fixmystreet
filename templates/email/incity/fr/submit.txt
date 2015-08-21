@@ -1,4 +1,4 @@
-Sujet: Signalement <?=$values['title']?>
+Subject: Signalement <?=$values['title']?>
 
 Pour <?=$values['bodies_name']?>,
 
@@ -12,7 +12,7 @@ merci de vous rendre sur ce lien:
 
 <?=$values['has_photo']?>----------
 
-Nom: <?=$values['name']?>
+Name: <?=$values['name']?>
 
 Email: <?=$values['email']?>
 
