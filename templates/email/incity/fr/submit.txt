@@ -28,5 +28,11 @@ Longitude: <?=$values['longitude']?>
 
 La réponse à ce mail ira directement à l’utilisateur qui a signaler le problème.
 
-[% INCLUDE 'signature.txt' %]
+Bon courage,
+
+L’équipe de InCity
+
+http://incityapp.fr/
+http://signalement.incityapp.fr/faq
+
 
