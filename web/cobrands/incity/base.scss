@@ -5,3 +5,24 @@
 
 @import "../sass/base";
 
+
+#site-header{
+  border-top: 0.25em solid $primary;
+  height: 3em;
+  @include background(linear-gradient($wetasphalt 10%, $wetasphalt));
+  .container {
+    min-height:4em;
+  }
+}
+
+#site-logo{
+  display: block;
+  width: 175px;
+  height: 40px;
+  top: 0.4em;
+  left: 0.5em;
+  background: url(/cobrands/incity/images/logo_web_1.png) 0 0 no-repeat;
+  text-indent: -999999px;
+  position: absolute;
+  z-index:2;
+}
