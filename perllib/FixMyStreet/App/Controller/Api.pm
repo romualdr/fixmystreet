@@ -59,6 +59,9 @@ sub problem_as_hashref : Private {
 sub all_reports : Path('councils') : Args(0){
 	my ( $self, $c ) = @_;
 
+    my $p_page = $c->req->params->{p} || 1;
+    my $u_rows = $c->req->params->{rows} || 50;
+
     # Fetch all bodies
     my @bodies = $c->model('DB::Body')->search({}, {
         '+select' => [ { count => 'area_id' } ],
@@ -123,6 +126,7 @@ sub my_reports : Path('my_reports') : Args(0) {
     my $json;
 	my $p_page = $c->req->params->{p} || 1;
     my $u_page = $c->req->params->{u} || 1;
+    my $u_rows = $c->req->params->{rows} || 50;
 
     my $pins = [];
     my $problems = {};
@@ -135,7 +139,7 @@ sub my_reports : Path('my_reports') : Args(0) {
 
 	    my $rs = $c->user->problems->search( $params, {
 	        order_by => { -desc => 'created' },
-	        rows => 50,
+	        rows => $u_rows,
 	    })->page( $p_page );
         
 
@@ -343,7 +347,8 @@ sub check_canonical_url : Private {
 
 sub load_and_group_problems : Private {
     my ( $self, $c ) = @_;
-
+    
+    my $u_rows = $c->req->params->{rows} || $c->cobrand->reports_per_page;
     my $page = $c->req->params->{p} || 1;
     my $type = $c->req->params->{t} || 'all';
     my $category = $c->req->params->{c} || '';
@@ -402,7 +407,7 @@ sub load_and_group_problems : Private {
         $where,
         {
             order_by => { -desc => 'lastupdate' },
-            rows => $c->cobrand->reports_per_page,
+            rows => $u_rows,
         }
     )->page( $page );
     $c->stash->{pager} = $problems->pager;
