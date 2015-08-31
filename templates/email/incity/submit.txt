@@ -5,8 +5,9 @@ Pour <?=$values['bodies_name']?>,
 <?=$values['missing']?><?=$values['multiple']?>Un utilisateur d’
 <?=$values['site_name']?> a signaler un problème sur <?=$values['bodies_name']?> qui peut nécessiter votre attention.
 
-<?=$values['fuzzy']?>, ou de fournir une mise à jour du signalement,
-merci de vous rendre sur ce lien:
+Pour voir une carte de l'emplacement précis de ce problème, ou de
+fournir une mise à jour du signalement, merci de vous rendre sur ce
+lien:
 
     <?=$values['url']?>
 
