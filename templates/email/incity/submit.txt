@@ -11,7 +11,7 @@ lien:
 
     <?=$values['url']?>
 
-<?=$values['has_photo']?>----------
+----------
 
 Nom: <?=$values['name']?>
 
