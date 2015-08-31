@@ -9,6 +9,5 @@ mises à jour que vous avez fait sur [% INCLUDE 'site-name.txt' | trim %].
 
 [% INCLUDE 'signature.txt' %]
 
-Ce courriel a été envoyé automatiquement, à partir d'un compte de messagerie non surveillée - si
-s'il vous plaît ne pas répondre.
+Ce courriel a été envoyé automatiquement, ne pas répondre.
 
