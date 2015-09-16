@@ -70,8 +70,6 @@ sub index : Path : Args(0) {
         return $c->cobrand->admin();
     }
 
-    my $site_restriction = $c->cobrand->site_restriction();
-
     my $problems = $c->cobrand->problems->summary_count;
 
     my %prob_counts =
@@ -85,7 +83,7 @@ sub index : Path : Args(0) {
         for ( FixMyStreet::DB::Result::Problem->visible_states() );
     $c->stash->{total_problems_users} = $c->cobrand->problems->unique_users;
 
-    my $comments = $c->model('DB::Comment')->summary_count( $site_restriction );
+    my $comments = $c->model('DB::Comment')->summary_count( $c->cobrand->body_restriction );
 
     my %comment_counts =
       map { $_->state => $_->get_column('state_count') } $comments->all;
@@ -150,7 +148,6 @@ sub config_page : Path( 'config' ) : Args(0) {
 sub timeline : Path( 'timeline' ) : Args(0) {
     my ($self, $c) = @_;
 
-    my $site_restriction = $c->cobrand->site_restriction();
     my %time;
 
     $c->model('DB')->schema->storage->sql_maker->quote_char( '"' );
@@ -171,7 +168,7 @@ sub timeline : Path( 'timeline' ) : Args(0) {
         push @{$time{$_->whenanswered->epoch}}, { type => 'quesAnswered', date => $_->whenanswered, obj => $_ } if $_->whenanswered;
     }
 
-    my $updates = $c->model('DB::Comment')->timeline( $site_restriction );
+    my $updates = $c->model('DB::Comment')->timeline( $c->cobrand->body_restriction );
 
     foreach ($updates->all) {
         push @{$time{$_->created->epoch}}, { type => 'update', date => $_->created, obj => $_} ;
@@ -359,7 +356,7 @@ sub update_contacts : Private {
         $contact->deleted( $c->get_param('deleted') ? 1 : 0 );
         $contact->non_public( $c->get_param('non_public') ? 1 : 0 );
         $contact->note( $c->get_param('note') );
-        $contact->whenedited( \'ms_current_timestamp()' );
+        $contact->whenedited( \'current_timestamp' );
         $contact->editor( $editor );
         $contact->endpoint( $c->get_param('endpoint') );
         $contact->jurisdiction( $c->get_param('jurisdiction') );
@@ -395,7 +392,7 @@ sub update_contacts : Private {
         $contacts->update(
             {
                 confirmed => 1,
-                whenedited => \'ms_current_timestamp()',
+                whenedited => \'current_timestamp',
                 note => 'Confirmed',
                 editor => $editor,
             }
@@ -538,8 +535,6 @@ sub reports : Path('reports') {
     if (my $search = $c->get_param('search')) {
         $c->stash->{searched} = $search;
 
-        my $site_restriction = $c->cobrand->site_restriction;
-
         my $search_n = 0;
         $search_n = int($search) if $search =~ /^\d+$/;
 
@@ -616,9 +611,10 @@ sub reports : Path('reports') {
         }
 
         if (@$query) {
-            my $updates = $c->model('DB::Comment')->search(
+            my $updates = $c->model('DB::Comment')
+                ->to_body($c->cobrand->body_restriction)
+                ->search(
                 {
-                    %{ $site_restriction },
                     -or => $query,
                 },
                 {
@@ -649,8 +645,6 @@ sub reports : Path('reports') {
 
 sub report_edit : Path('report_edit') : Args(1) {
     my ( $self, $c, $id ) = @_;
-
-    my $site_restriction = $c->cobrand->site_restriction;
 
     my $problem = $c->cobrand->problems->search( { id => $id } )->first;
 
@@ -707,7 +701,7 @@ sub report_edit : Path('report_edit') : Args(1) {
     }
     elsif ( $c->get_param('mark_sent') ) {
         $c->forward('check_token');
-        $problem->whensent(\'ms_current_timestamp()');
+        $problem->whensent(\'current_timestamp');
         $problem->update();
         $c->stash->{status_message} = '<p><em>' . _('That problem has been marked as sent.') . '</em></p>';
         $c->forward( 'log_edit', [ $id, 'problem', 'marked sent' ] );
@@ -787,14 +781,14 @@ sub report_edit : Path('report_edit') : Args(1) {
         }
 
         if ( $problem->is_visible() and $old_state eq 'unconfirmed' ) {
-            $problem->confirmed( \'ms_current_timestamp()' );
+            $problem->confirmed( \'current_timestamp' );
         }
 
         if ($done) {
             $problem->discard_changes;
         }
         else {
-            $problem->lastupdate( \'ms_current_timestamp()' ) if $edited || $new_state ne $old_state;
+            $problem->lastupdate( \'current_timestamp' ) if $edited || $new_state ne $old_state;
             $problem->update;
 
             if ( $new_state ne $old_state ) {
@@ -874,13 +868,9 @@ sub users: Path('users') : Args(0) {
 sub update_edit : Path('update_edit') : Args(1) {
     my ( $self, $c, $id ) = @_;
 
-    my $site_restriction = $c->cobrand->site_restriction;
-    my $update = $c->model('DB::Comment')->search(
-        {
-            id => $id,
-            %{$site_restriction},
-        }
-    )->first;
+    my $update = $c->model('DB::Comment')
+        ->to_body($c->cobrand->body_restriction)
+        ->search({ id => $id })->first;
 
     $c->detach( '/page_error_404_not_found' )
       unless $update;
@@ -943,10 +933,10 @@ sub update_edit : Path('update_edit') : Args(1) {
         }
 
         if ( $new_state eq 'confirmed' and $old_state eq 'unconfirmed' ) {
-            $update->confirmed( \'ms_current_timestamp()' );
+            $update->confirmed( \'current_timestamp' );
             if ( $update->problem_state && $update->created > $update->problem->lastupdate ) {
                 $update->problem->state( $update->problem_state );
-                $update->problem->lastupdate( \'ms_current_timestamp()' );
+                $update->problem->lastupdate( \'current_timestamp' );
                 $update->problem->update;
             }
         }
@@ -1064,7 +1054,7 @@ sub user_edit : Path('user_edit') : Args(1) {
 sub flagged : Path('flagged') : Args(0) {
     my ( $self, $c ) = @_;
 
-    my $problems = $c->model('DB::Problem')->search( { flagged => 1 } );
+    my $problems = $c->cobrand->problems->search( { flagged => 1 } );
 
     # pass in as array ref as using same template as search_reports
     # which has to use an array ref for sql quoting reasons
@@ -1121,9 +1111,6 @@ sub stats : Path('stats') : Args(0) {
 
         my $bymonth = $c->get_param('bymonth');
         $c->stash->{bymonth} = $bymonth;
-        my ( %body, %dates );
-        $body{bodies_str} = { like => $c->get_param('body') }
-            if $c->get_param('body');
 
         $c->stash->{selected_body} = $c->get_param('body');
 
@@ -1154,14 +1141,12 @@ sub stats : Path('stats') : Args(0) {
             );
         }
 
-        my $p = $c->model('DB::Problem')->search(
+        my $p = $c->cobrand->problems->to_body($c->get_param('body'))->search(
             {
                 -AND => [
                     $field => { '>=', $start_date},
                     $field => { '<=', $end_date + $one_day },
                 ],
-                %body,
-                %dates,
             },
             \%select,
         );

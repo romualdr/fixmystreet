@@ -53,8 +53,9 @@ __PACKAGE__->add_columns(
   "created",
   {
     data_type     => "timestamp",
-    default_value => \"ms_current_timestamp()",
+    default_value => \"current_timestamp",
     is_nullable   => 0,
+    original      => { default_value => \"now()" },
   },
   "confirmed",
   { data_type => "timestamp", is_nullable => 1 },
@@ -71,8 +72,9 @@ __PACKAGE__->add_columns(
   "lastupdate",
   {
     data_type     => "timestamp",
-    default_value => \"ms_current_timestamp()",
+    default_value => \"current_timestamp",
     is_nullable   => 0,
+    original      => { default_value => \"now()" },
   },
   "whensent",
   { data_type => "timestamp", is_nullable => 1 },
@@ -102,6 +104,8 @@ __PACKAGE__->add_columns(
   { data_type => "integer", default_value => 0, is_nullable => 1 },
   "subcategory",
   { data_type => "text", is_nullable => 1 },
+  "bodies_missing",
+  { data_type => "text", is_nullable => 1 },
 );
 __PACKAGE__->set_primary_key("id");
 __PACKAGE__->has_many(
@@ -130,8 +134,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07035 @ 2014-07-31 15:57:02
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:EvD4sS1mdJJyI1muZ4TrCw
+# Created by DBIx::Class::Schema::Loader v0.07035 @ 2015-08-13 16:33:38
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Go+T9oFRfwQ1Ag89qPpF/g
 
 # Add fake relationship to stored procedure table
 __PACKAGE__->has_one(
@@ -400,7 +404,7 @@ sub check_for_errors {
 
     $errors{bodies} = _('No council selected')
       unless $self->bodies_str
-          && $self->bodies_str =~ m/^(?:-1|[\d,]+(?:\|[\d,]+)?)$/;
+          && $self->bodies_str =~ m/^(?:-1|[\d,]+)$/;
 
     if ( !$self->name || $self->name !~ m/\S/ ) {
         $errors{name} = _('Please enter your name');
@@ -441,15 +445,14 @@ sub confirm {
     return if $self->state eq 'confirmed';
 
     $self->state('confirmed');
-    $self->confirmed( \'ms_current_timestamp()' );
+    $self->confirmed( \'current_timestamp' );
     return 1;
 }
 
 sub bodies_str_ids {
     my $self = shift;
     return unless $self->bodies_str;
-    (my $bodies = $self->bodies_str) =~ s/\|.*$//;
-    my @bodies = split( /,/, $bodies );
+    my @bodies = split( /,/, $self->bodies_str );
     return \@bodies;
 }
 
@@ -634,16 +637,13 @@ sub body {
     return $body;
 }
 
-# returns true if the external id is the council's ref, i.e., useful to publish it
-# (by way of an example, the barnet send method returns a useful reference when
-# it succeeds, so that is the ref we should show on the problem report page).
+# returns true if the external id is the council's ref, i.e., useful to publish it.
 #     Future: this is installation-dependent so maybe should be using the contact
 #             data to determine if the external id is public on a council-by-council basis.
 #     Note:   this only makes sense when called on a problem that has been sent!
 sub can_display_external_id {
     my $self = shift;
-    if ($self->external_id && $self->send_method_used && 
-        ($self->send_method_used eq 'barnet' || $self->bodies_str =~ /2237/)) {
+    if ($self->external_id && $self->send_method_used && $self->bodies_str =~ /2237/) {
         return 1;
     }
     return 0;    
@@ -735,8 +735,8 @@ sub update_from_open311_service_request {
         {
             problem_id => $self->id,
             state      => 'confirmed',
-            created    => $updated || \'ms_current_timestamp()',
-            confirmed => \'ms_current_timestamp()',
+            created    => $updated || \'current_timestamp',
+            confirmed => \'current_timestamp',
             text      => $status_notes,
             mark_open => 0,
             mark_fixed => 0,
@@ -789,7 +789,7 @@ sub update_send_failed {
 
     $self->update( {
         send_fail_count => $self->send_fail_count + 1,
-        send_fail_timestamp => \'ms_current_timestamp()',
+        send_fail_timestamp => \'current_timestamp',
         send_fail_reason => $msg
     } );
 }
