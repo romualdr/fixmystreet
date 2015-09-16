@@ -26,7 +26,7 @@ function set_map_config(perm) {
         zoomDuration: 10
     };
     fixmystreet.layer_options = [
-        { type: google.maps.MapTypeId.HYBRID },
+        { type: google.maps.MapTypeId.SATELLITE },
         {}
     ];
 }
