@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: fixmystreet\n"
 "Report-Msgid-Bugs-To: matthew@mysociety.org\n"
 "POT-Creation-Date: 2015-10-23 16:51+0100\n"
-"PO-Revision-Date: 2015-11-13 14:41+0400\n"
+"PO-Revision-Date: 2015-11-13 16:08+0400\n"
 "Last-Translator: fixmystreetfr <fixmystreet@fixmystreet.fr>\n"
 "Language-Team: French (France) (http://www.transifex.com/mysociety/"
 "fixmystreet/language/fr_FR/)\n"
@@ -2115,7 +2115,7 @@ msgstr "Maintenant pour envoyer votre rapport&hellip;"
 #: templates/web/base/report/update-form.html:86
 #: templates/web/fixmystreet/report/update-form.html:85
 msgid "Now to submit your update&hellip;"
-msgstr "Now to submit your mise à jour&hellip;"
+msgstr "Maintenant pour envoyer votre mise à jour&hellip;"
 
 #: templates/web/base/js/translation_strings.html:42
 msgid "OK"
