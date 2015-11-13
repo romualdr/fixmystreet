@@ -4,6 +4,13 @@
  */
 
 /*
+ * Find directionality of content
+ */
+function isR2L() {
+    return !!$('html[dir=rtl]').length;
+}
+
+/*
  * general height fixing function
  *
  * elem1: element to check against
@@ -43,10 +50,28 @@ function tabs(elem, indirect) {
         $('.tab-nav .active').removeClass('active');
         elem.addClass('active');
 
-        //hide / show the right tab
+        //hide / show the correct tab
         $('.tab.open').hide().removeClass('open');
         $(target).show().addClass('open');
     }
+}
+
+/* Geographic functions for faking map centre, as it appears to be offset from
+   where it actually is */
+
+function midpoint_box_excluding_column(col_offset, col_width, box_offset, box_width) {
+    var r2l = isR2L(),
+        diff = r2l ? box_width : (box_offset.left - col_width),
+        q = (col_offset.left - diff) / 2;
+    if ((r2l && q > 0) || (!r2l && q < 0)) {
+        return 0;
+    }
+    return q;
+}
+
+function fixmystreet_midpoint() {
+    var $content = $('.content'), mb = $('#map_box');
+    return midpoint_box_excluding_column($content.offset(), $content.width(), mb.offset(), mb.width());
 }
 
 
@@ -58,10 +83,7 @@ $(function(){
     // Deal with switching between mobile and desktop versions on resize
     var last_type;
     $(window).resize(function(){
-        var type = $('#site-header').css('borderTopWidth');
-        if (type == '4px') { type = 'mobile'; }
-        else if (type == '0px') { type = 'desktop'; }
-        else { return; }
+        var type = Modernizr.mq('(min-width: 48em)') || $('html.iel8').length ? 'desktop' : 'mobile';
         if (last_type == type) { return; }
         if (type == 'mobile') {
             $html.addClass('mobile');
@@ -130,7 +152,7 @@ $(function(){
     }
 
     //show/hide notes on mobile
-    $('.mobile #report-a-problem-sidebar').after('<a href="#" class="rap-notes-trigger button-right">' + translation_strings.how_to_send + '</a>').hide();
+    $('.mobile #report-a-problem-sidebar').after('<a href="#" class="rap-notes-trigger button-fwd">' + translation_strings.how_to_send + '</a>').hide();
     $('.rap-notes-trigger').click(function(e){
         e.preventDefault();
         //check if we've already moved the notes
@@ -141,7 +163,7 @@ $(function(){
         }else{
             //if not, move them and show, hiding .content
             $('.content').after('<div class="content rap-notes"></div>').hide();
-            $('#report-a-problem-sidebar').appendTo('.rap-notes').show().after('<a href="#" class="rap-notes-close button-left">' + translation_strings.back + '</a>');
+            $('#report-a-problem-sidebar').appendTo('.rap-notes').show().after('<a href="#" class="rap-notes-close button-back">' + translation_strings.back + '</a>');
         }
         $('html, body').scrollTop($('#report-a-problem-sidebar').offset().top);
         location.hash = 'rap-notes';
@@ -156,8 +178,7 @@ $(function(){
     });
 
     //move 'skip this step' link on mobile
-    $('.mobile #skip-this-step').hide();
-    $('.mobile #skip-this-step a').addClass('chevron').wrap('<li>').appendTo('#key-tools');
+    $('.mobile #skip-this-step').addClass('chevron').wrap('<li>').parent().appendTo('#key-tools');
 
     /*
      * Tabs
@@ -186,6 +207,7 @@ $(function(){
         e.preventDefault();
         var offset = $('#main-nav').offset().top;
         $('html, body').animate({scrollTop:offset}, 1000);
+        window.location.hash = 'main-nav';
     });
 
 
@@ -288,21 +310,24 @@ $.fn.drawer = function(id, ajax) {
             // if ajax, load it with a spinner
             if (ajax) {
                 var href = $this.attr('href') + ';ajax=1';
-                $this.prepend(' <img class="spinner" src="/cobrands/fixmystreet/images/spinner-black-333.gif" style="margin-right:2em;">');
+                var margin = isR2L() ? 'margin-left' : 'margin-right';
+                $this.prepend(' <img class="spinner" src="/cobrands/fixmystreet/images/spinner-black-333.gif" style="' + margin + ':2em;">');
                 innerDiv.load(href, function(){
                     $('.spinner').remove();
                 });
             }
 
             // Tall drawer - put after .content for scrolling to work okay.
-            // position over the top of the main .content in precisely the right location
-            d.insertAfter($content).addClass('content').css({
+            // position over the top of the main .content in precisely the correct location
+            var drawer_css = {
                 position: 'absolute',
                 zIndex: '1100',
                 marginTop: $('html.ie6, html.ie7').length ? '-3em' : 0, // IE6/7 otherwise include the 3em padding and stay too low
-                left: 0,
                 top: $(window).height() - $content.offset().top
-            }).removeClass('hidden-js').find('h2').css({ marginTop: 0 });
+            };
+            drawer_css[isR2L() ? 'right' : 'left'] = 0;
+            d.insertAfter($content).addClass('content').css(drawer_css)
+                .removeClass('hidden-js').find('h2').css({ marginTop: 0 });
             $this.data('setup', true);
         }
 
@@ -343,12 +368,12 @@ $.fn.drawer = function(id, ajax) {
 
     // Go directly to RSS feed if RSS button clicked on alert page
     // (due to not wanting around form to submit, though good thing anyway)
-    $('.container').on('click', '#alert_rss_button', function(e){
+    $('body').on('click', '#alert_rss_button', function(e){
         e.preventDefault();
         var feed = $('input[name=feed][type=radio]:checked').nextAll('a').attr('href');
         window.location.href = feed;
     });
-    $('.container').on('click', '#alert_email_button', function(e){
+    $('body').on('click', '#alert_email_button', function(e){
         e.preventDefault();
         var form = $('<form/>').attr({ method:'post', action:"/alert/subscribe" });
         form.append($('<input name="alert" value="Subscribe me to an email alert" type="hidden" />'));
@@ -376,15 +401,16 @@ $.fn.drawer = function(id, ajax) {
 
     //set up map_links_toggle click event
     $('#map_links_toggle').on('click', function(){
-        var maplinks_width = $('#sub_map_links').width();
-
-        if($(this).hasClass('closed')){
+        var sub_map_links_css = {},
+            left_right = isR2L() ? 'left' : 'right';
+        if ($(this).hasClass('closed')) {
             $(this).removeClass('closed');
-            $('#sub_map_links').animate({'right':'0'}, 1200);
-        }else{
+            sub_map_links_css[left_right] = '0';
+        } else {
             $(this).addClass('closed');
-            $('#sub_map_links').animate({'right':-maplinks_width}, 1200);
+            sub_map_links_css[left_right] = -$('#sub_map_links').width();
         }
+        $('#sub_map_links').animate(sub_map_links_css, 1200);
     });
 
 
@@ -457,16 +483,3 @@ $.fn.drawer = function(id, ajax) {
     }
 
 });
-
-/*
-XXX Disabled because jerky on Android and makes map URL bar height too small on iPhone.
-// Hide URL bar
-$(window).load(function(){
-    window.setTimeout(function(){
-        var s = window.pageYOffset || document.compatMode === "CSS1Compat" && document.documentElement.scrollTop || document.body.scrollTop || 0;
-        if (s < 20 && !location.hash) {
-            window.scrollTo(0, 1);
-        }
-    }, 0);
-});
-*/

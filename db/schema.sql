@@ -173,8 +173,8 @@ create table problem (
     ),
     lang text not null default 'en-gb',
     service text not null default '',
-    cobrand text not null default '' check (cobrand ~* '^[a-z0-9]*$'), 
-    cobrand_data text not null default '' check (cobrand_data ~* '^[a-z0-9]*$'), -- Extra data used in cobranded versions of the site
+    cobrand text not null default '' check (cobrand ~* '^[a-z0-9_]*$'),
+    cobrand_data text not null default '' check (cobrand_data ~* '^[a-z0-9_]*$'), -- Extra data used in cobranded versions of the site
     lastupdate timestamp not null default current_timestamp,
     whensent timestamp,
     send_questionnaire boolean not null default 't',
@@ -297,9 +297,9 @@ create table comment (
         or state = 'confirmed'
         or state = 'hidden'
     ),
-    cobrand text not null default '' check (cobrand ~* '^[a-z0-9]*$'), 
+    cobrand text not null default '' check (cobrand ~* '^[a-z0-9_]*$'),
     lang text not null default 'en-gb',
-    cobrand_data text not null default '' check (cobrand_data ~* '^[a-z0-9]*$'), -- Extra data used in cobranded versions of the site
+    cobrand_data text not null default '' check (cobrand_data ~* '^[a-z0-9_]*$'), -- Extra data used in cobranded versions of the site
     mark_fixed boolean not null,
     mark_open boolean not null default 'f',
     problem_state text check (
@@ -366,8 +366,8 @@ create table alert (
     user_id int references users(id) not null,
     confirmed integer not null default 0,
     lang text not null default 'en-gb',
-    cobrand text not null default '' check (cobrand ~* '^[a-z0-9]*$'), 
-    cobrand_data text not null default '' check (cobrand_data ~* '^[a-z0-9]*$'), -- Extra data used in cobranded versions of the site
+    cobrand text not null default '' check (cobrand ~* '^[a-z0-9_]*$'),
+    cobrand_data text not null default '' check (cobrand_data ~* '^[a-z0-9_]*$'), -- Extra data used in cobranded versions of the site
     whensubscribed timestamp not null default current_timestamp,
     whendisabled timestamp default null
 );
@@ -427,7 +427,8 @@ create table admin_log (
     action text not null,
     whenedited timestamp not null default current_timestamp,
     user_id int references users(id) null,
-    reason text not null default ''
+    reason text not null default '',
+    time_spent int not null default 0
 ); 
 
 create table moderation_original_data (
@@ -456,4 +457,13 @@ create table user_body_permissions (
         permission_type='admin'
     ),
     unique(user_id, body_id, permission_type)
+);
+
+create table response_templates (
+    id serial not null primary key,
+    body_id int references body(id) not null,
+    title text not null,
+    text text not null,
+    created timestamp not null default current_timestamp,
+    unique(body_id, title)
 );

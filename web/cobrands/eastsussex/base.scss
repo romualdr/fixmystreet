@@ -26,12 +26,10 @@ a, a:visited {
     }
 }
 
-.issue-list-a {
-  li {
-      color:#666;
-      a {
-          color:#666;
-      }
+.item-list--reports__item {
+  color: #666;
+  a {
+    color: #666;
   }
 }
 
@@ -49,8 +47,6 @@ h1.main {
     position: relative;
     background: $primary;
     height: 76px;
-    border-top-width: 4px;
-    margin-top: -4px;
 }
 #site-header .eastsussex .header {
     margin: 0 0 2px;

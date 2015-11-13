@@ -1,8 +1,6 @@
 @import "_colours";
 @import "../sass/layout";
-
-// Import the new filters/list styling
-@import "../sass/_report_list.scss";
+@import "../sass/report_list_pins";
 
 // Alter the logo and the header on every page *but* the map page. On the map
 // page it stays small like in base.css
@@ -29,7 +27,7 @@ body.mappage {
 }
 
 // We have to specify this again for IE, since FMS overrides it
-.ie6, .ie7, .ie8 {
+.iel8 {
   body.fullwidthpage,
   body.twothirdswidthpage {
     #site-header {
@@ -53,19 +51,12 @@ body.mappage {
 }
 
 // Override the FMS main menu to give it a background colour
-#main-menu {
+.nav-menu--main {
   background-color: $bromley_blue;
 }
-// Override the selected element to match. We need to do this separately
-// because of FMS's selectors being quite specific
-#main-nav ul#main-menu li span {
+.nav-menu--main span {
   color: $nav_fg;
   background-color: $nav_fg_hover;
-}
-
-// Override the "report a problem" button because it's not really a button
-#main-nav ul#main-menu li a.report-a-problem-btn {
-  color: $nav_fg;
 }
 
 // Fix bad margin on local alerts form
@@ -78,11 +69,10 @@ body.alertindex form.full-width {
 body.mappage #user-meta p {
   background-color: $bromley_blue;
   border-bottom: 1px solid #444;
-  left: 2.65em;
 }
 
 // And also override the banner on other pages so that it lines up properly
-#user-meta {
+#user-meta, body.mappage #user-meta {
   max-width: 1200px;
 }
 #user-meta p,
@@ -108,8 +98,9 @@ h1.main {
 // We have slightly different content in our lists of issues to what
 // reports_list.scss expects, so we need to add back some padding it removes.
 // This stops the pin icon being underneath the text.
-.issue-list-a li .text {
-  padding-left: 4em;
+.item-list__item--with-pin a {
+  padding: 0;
+  padding-left: 3em;
 }
 
 // Because we've changed the page background, the footer looks a bit rubbish
@@ -228,7 +219,7 @@ body.frontpage #site-logo {
 }
 
 // Fix the footer in Old IE because it doesn't like last-child selectors
-.ie6, .ie7, .ie8 {
+.iel8 {
   .site-footer {
     .column {
       // Old IE won't float the social media links unless we force the width to be

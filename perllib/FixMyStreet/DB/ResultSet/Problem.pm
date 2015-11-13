@@ -210,7 +210,10 @@ sub unique_users {
     return $rs->search( {
         state => [ FixMyStreet::DB::Result::Problem->visible_states() ],
     }, {
-        select => [ { count => { distinct => 'user_id' } } ],
+        select => [ { distinct => 'user_id' } ],
+        as     => [ 'user_id' ]
+    } )->as_subselect_rs->search( undef, {
+        select => [ { count => 'user_id' } ],
         as     => [ 'count' ]
     } )->first->get_column('count');
 }
@@ -247,7 +250,7 @@ sub send_reports {
     my $site = $site_override || CronFns::site($base_url);
 
     my $states = [ 'confirmed', 'fixed' ];
-    $states = [ 'unconfirmed', 'confirmed', 'in progress', 'planned', 'closed' ] if $site eq 'zurich';
+    $states = [ 'unconfirmed', 'confirmed', 'in progress', 'planned', 'closed', 'investigating' ] if $site eq 'zurich';
     my $unsent = $rs->search( {
         state => $states,
         whensent => undef,
