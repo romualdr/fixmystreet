@@ -210,6 +210,7 @@ sub council_reports : Path('reports/') : Args(1){
     my ( $self, $c, $body, $ward ) = @_;
 
     my $json;
+    $body = str_replace(' ','+', $body);
 
     eval{
 		$c->forward( 'body_check', [ $body ] );
@@ -233,7 +234,7 @@ sub council_reports : Path('reports/') : Args(1){
                 );
 
             }else{
-                
+
                 $json = JSON->new->utf8(1)->encode(
                     {
                         error => 'council not found',
@@ -938,6 +939,23 @@ sub report_update : Path('report/update') : Args(0)  {
 
     return 1;
 
+}
+
+sub str_replace : Private {
+    my $replace_this = shift;
+    my $with_this  = shift; 
+    my $string   = shift;
+    
+    my $length = length($string);
+    my $target = length($replace_this);
+    
+    for(my $i=0; $i<$length - $target + 1; $i++) {
+        if(substr($string,$i,$target) eq $replace_this) {
+            $string = substr($string,0,$i) . $with_this . substr($string,$i+$target);
+            # return $string; #Comment this if you what a global replace
+        }
+    }
+    return $string;
 }
 
 
