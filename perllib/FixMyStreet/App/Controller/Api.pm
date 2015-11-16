@@ -216,19 +216,31 @@ sub council_reports : Path('reports/') : Args(1){
 		$c->forward( 'ward_check', [ $ward ] ) if $ward;
 
 		if($c->stash->{body}){
-			$c->forward( 'check_canonical_url', [ $body ] );
-		    $c->forward( 'load_and_group_problems' );
 
-		    my $pins = $c->stash->{pins};
-		    my $problems = $c->stash->{problems};
+            if($c->forward( 'check_canonical_url', [ $body ] )){
+                
+                $c->forward( 'load_and_group_problems' );
+
+                my $pins = $c->stash->{pins};
+                my $problems = $c->stash->{problems};
 
 
-		    $json = JSON->new->utf8(1)->encode(
-		        {
-		            reports => $pins,
-		            #problems => $problems,
-		        }
-		    );
+                $json = JSON->new->utf8(1)->encode(
+                    {
+                        reports => $pins,
+                        #problems => $problems,
+                    }
+                );
+
+            }else{
+                
+                $json = JSON->new->utf8(1)->encode(
+                    {
+                        error => 'council not found',
+                    }
+                );
+            }
+
 		}else{
 
 			$json = JSON->new->utf8(1)->encode(
@@ -308,8 +320,12 @@ sub ward_check : Private {
     my $parent_id;
     if ( $c->stash->{body} ) {
         $parent_id = $c->stash->{body}->body_areas->first;
-        $c->detach( 'redirect_body' ) unless $parent_id;
-        $parent_id = $parent_id->area_id;
+        if($parent_id){
+            $parent_id = $parent_id->area_id;
+        }else{
+            return;
+        }
+        
     } else {
         $parent_id = $c->stash->{area}->{id};
     }
@@ -326,7 +342,8 @@ sub ward_check : Private {
     # Given a false ward name
     $c->stash->{body} = $c->stash->{area}
         unless $c->stash->{body};
-    $c->detach( 'redirect_body' );
+    #$c->detach( 'redirect_body' );
+    return;
 }
 
 =head2 check_canonical_url
@@ -342,7 +359,9 @@ sub check_canonical_url : Private {
     my $body_short = $c->cobrand->short_name( $c->stash->{body} );
     my $url_short = URI::Escape::uri_escape_utf8($q_body);
     $url_short =~ s/%2B/+/g;
-    $c->detach( 'redirect_body' ) unless $body_short eq $url_short;
+
+    return $body_short eq $url_short;
+    #$c->detach( 'redirect_body' ) unless $body_short eq $url_short;
 }
 
 sub load_and_group_problems : Private {
