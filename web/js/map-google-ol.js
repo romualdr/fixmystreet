@@ -11,11 +11,11 @@ $(function(){
         }
     });
 
-    window.setTimeout(function(){
+/*    window.setTimeout(function(){
         if (typeof fixmystreet_google_default === 'undefined') {
             $('#map_layer_toggle').click();
         }
-    }, 5000);
+    }, 5000);*/
 
 });
 
