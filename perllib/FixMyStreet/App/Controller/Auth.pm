@@ -109,6 +109,16 @@ sub email_sign_in : Private {
         -fqdn     => 1,
     );
 
+    if ( $c->cobrand->moniker eq 'incity' ) {
+
+        $c->log->debug($c->cobrand->moniker);
+        $email_checker = Email::Valid->new(
+            -mxcheck  => 1,
+            -fqdn     => 1,
+        );
+
+    }
+
     my $good_email = $email_checker->address($raw_email);
     if ( !$good_email ) {
         $c->stash->{email} = $raw_email;
