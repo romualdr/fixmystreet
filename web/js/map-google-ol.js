@@ -15,7 +15,7 @@ $(function(){
         if (typeof fixmystreet_google_default === 'undefined') {
             $('#map_layer_toggle').click();
         }
-    }, 2000);
+    }, 5000);
 
 });
 
