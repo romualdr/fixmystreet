@@ -2,7 +2,7 @@ Subject: Signalement <?=$values['title']?>
 
 Pour <?=$values['bodies_name']?>,
 
-Un utilisateur d’<?=$values['site_name']?> a signaler un problème sur <?=$values['bodies_name']?> qui peut nécessiter votre attention.
+Un utilisateur d’<?=$values['site_name']?> a signalé un problème sur <?=$values['bodies_name']?> qui peut nécessiter votre attention.
 
 Merci de vous rendre sur ce lien:
 
