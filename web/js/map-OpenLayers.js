@@ -628,7 +628,7 @@ OpenLayers.Strategy.FixMyStreet = OpenLayers.Class(OpenLayers.Strategy.BBOX, {
 // params to /ajax if the user has filtered the map.
 OpenLayers.Protocol.FixMyStreet = OpenLayers.Class(OpenLayers.Protocol.HTTP, {
     read: function(options) {
-        console.log('read', this._count);
+        
         this._count = this._count || 0;
         ++this._count;
         if (this.count != undefined && this._count <= this.count) {
