@@ -35,6 +35,8 @@ sub problem_as_hashref : Private {
     my $c = shift;
     my $problem = shift;
 
+    my @photos = photos_lite($problem);
+
     return {
         id        => $problem->id,
         title     => $problem->title,
@@ -47,12 +49,39 @@ sub problem_as_hashref : Private {
         state_t   => _( $problem->state ),
         used_map  => $problem->used_map,
         is_fixed  => $problem->fixed_states->{ $problem->state } ? 1 : 0,
-        photo     => $problem->get_photo_params,
+        photo     => (@photos == 0 ? () : $photos[0][0]),
         meta      => $problem->confirmed ? $problem->meta_line( $c ) : '',
         confirmed => $problem->confirmed ? $problem->confirmed->strftime('%H:%M %Y-%m-%d'): '',
         created   => $problem->created ? $problem->created->strftime('%H:%M %Y-%m-%d') : '',
-        creator   => $problem->name ? $problem->name : '', 
+        creator   => $problem->name ? $problem->name : '',
     };
+}
+
+
+=head2 photos_lite
+
+Lite photo problem extractor for API
+Code taken from /perllib/FixMyStreet/DB/Result/Problem.pm:photos
+Edited a little bit
+
+=cut
+sub photos_lite : Private {
+    my $problem = shift;
+    my $photoset = $problem->get_photoset;
+    my $id = $problem->id;
+
+    my $i = 0;
+    my @photos = map {
+        my $cachebust = substr($_, 0, 8);
+        my ($hash, $format) = split /\./, $_;
+        {
+            url => "/photo/$id.$i.$format?$cachebust",
+            url_full => "/photo/$id.$i.full.$format?$cachebust",
+            url_tn => "/photo/$id.$i.tn.$format?$cachebust",
+            url_fp => "/photo/$id.$i.fp.$format?$cachebust"
+        }
+    } $photoset->all_ids;
+    return \@photos;
 }
 
 
@@ -89,7 +118,7 @@ sub all_reports : Path('councils') : Args(0){
             FixMyStreet->path_to( '../data/all-reports.json' )->stringify
         );
         my $j = JSON->new->utf8(1)->decode($data);
-        
+
        	my $json = JSON->new->utf8(1)->encode(
 	        {
 	            bodies => $json_bodies,
@@ -141,7 +170,7 @@ sub my_reports : Path('my_reports') : Args(0) {
 	        order_by => { -desc => 'created' },
 	        rows => $u_rows,
 	    })->page( $p_page );
-        
+
 
 	    while ( my $problem = $rs->next ) {
 	        $c->stash->{has_content}++;
@@ -159,7 +188,7 @@ sub my_reports : Path('my_reports') : Args(0) {
                     name => $com->name,
                     created => $com->created->strftime('%H:%M %Y-%m-%d'),
                 }
-            }  
+            }
 
             my $problem_formatted = problem_as_hashref($c, $problem);
             my $comments = {
@@ -219,7 +248,7 @@ sub council_reports : Path('reports/') : Args(1){
 		if($c->stash->{body}){
 
             if($c->forward( 'check_canonical_url', [ $body ] )){
-                
+
                 $c->forward( 'load_and_group_problems' );
 
                 my $pins = $c->stash->{pins};
@@ -326,7 +355,7 @@ sub ward_check : Private {
         }else{
             return;
         }
-        
+
     } else {
         $parent_id = $c->stash->{area}->{id};
     }
@@ -367,7 +396,7 @@ sub check_canonical_url : Private {
 
 sub load_and_group_problems : Private {
     my ( $self, $c ) = @_;
-    
+
     my $u_rows = $c->req->params->{rows} || $c->cobrand->reports_per_page;
     my $page = $c->req->params->{p} || 1;
     my $type = $c->req->params->{t} || 'all';
@@ -564,9 +593,9 @@ sub load_updates : Private {
     while (my $update = $updates->next) {
         push @combined, [ $update->confirmed, $update ];
         push @$updateslist, {
-        	name      => $update->name,	
+        	name      => $update->name,
         	text 	  => $update->text,
-        	photo 	  => $update->get_photo_params,
+        	photo 	  => photos_lite($update),
         	confirmed => $update->confirmed ? $update->confirmed->strftime('%H:%M %Y-%m-%d') :'',
             created   => $update->created ? $update->created->strftime('%H:%M %Y-%m-%d') : '',
         };
@@ -815,7 +844,7 @@ sub display_location : Private {
                     name    => $com->name,
                     created => $com->created->strftime('%H:%M %Y-%m-%d'),
                 }
-            }  
+            }
 
             my $problem_formatted = problem_as_hashref($c, $p);
             $problem_formatted->{comments} = $updates_json;
@@ -837,7 +866,7 @@ sub display_location : Private {
 	$c->res->content_type('application/json; charset=utf-8');
     my $content = JSON->new->utf8(1)->encode(
         {
-            reports_around => \@pins,
+          reports_around => \@pins,
 	        latitude  => $short_latitude,
 	        longitude => $short_longitude,
 	        clickable => 1,
@@ -943,12 +972,12 @@ sub report_update : Path('report/update') : Args(0)  {
 
 sub str_replace : Private {
     my $replace_this = shift;
-    my $with_this  = shift; 
+    my $with_this  = shift;
     my $string   = shift;
-    
+
     my $length = length($string);
     my $target = length($replace_this);
-    
+
     for(my $i=0; $i<$length - $target + 1; $i++) {
         if(substr($string,$i,$target) eq $replace_this) {
             $string = substr($string,0,$i) . $with_this . substr($string,$i+$target);
