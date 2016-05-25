@@ -39,6 +39,7 @@ Makefile
 blib/
 inc/
 _Inline/
+*.pyc
 
 # International
 /fixmystreet-international
