@@ -1,0 +1,7 @@
+Subject: FMS message: [% subject %]
+
+[ From: [% recipient %] ]
+
+[% message %]
+
+[ Sent by contact.cgi on [% host %]. IP address [% ip %] ]

@@ -57,7 +57,7 @@ msgstr "%s admin:"
 
 #: templates/web/base/status/stats.html:26
 msgid "%s bodies"
-msgstr ""
+msgstr "%s interlocuteurs"
 
 #: templates/web/base/status/stats.html:24
 msgid "%s confirmed alerts, %s unconfirmed"
@@ -371,7 +371,7 @@ msgstr "Vous êtes un développeur ?"
 
 #: templates/web/base/js/translation_strings.html:52
 msgid "Are you sure you want to cancel this upload?"
-msgstr ""
+msgstr "Voulez-vous vraiment annuler?"
 
 #: templates/web/base/admin/body-form.html:69
 #: templates/web/base/admin/body.html:16
@@ -846,7 +846,7 @@ msgstr "Vous n'aimez pas les formulaires ?"
 
 #: templates/web/base/js/translation_strings.html:51
 msgid "Drag and drop photos here or <u>click to upload</u>"
-msgstr ""
+msgstr "Déposez ou <u>cliquez ici</u> pour ajouter des photos"
 
 #: templates/web/base/admin/report_blocks.html:1
 #: templates/web/base/admin/report_blocks.html:14
@@ -2143,7 +2143,7 @@ msgstr "Merci d'entrer un message"
 #: perllib/FixMyStreet/App/Controller/Admin.pm:1079
 #: perllib/FixMyStreet/App/Controller/Admin.pm:1134
 msgid "Please enter a name"
-msgstr ""
+msgstr "Entrez un nom"
 
 #: templates/web/base/auth/change_password.html:12
 #: templates/web/base/auth/change_password.html:15
@@ -2265,7 +2265,7 @@ msgstr ""
 
 #: templates/web/base/report/new/oauth_email_form.html:4
 msgid "Please note your report has <strong>not yet been sent</strong>."
-msgstr ""
+msgstr "Votre rapport <strong>n'a pas encore été envoyé</strong>."
 
 #: templates/web/base/report/new/fill_in_details_form.html:20
 #: templates/web/zurich/report/new/fill_in_details_form.html:11
@@ -2279,7 +2279,7 @@ msgstr ""
 
 #: templates/web/base/report/display.html:26
 msgid "Please note your update has <strong>not yet been posted</strong>."
-msgstr ""
+msgstr "Votre mise à jour de rapport <strong>n'a pas encore été envoyée</strong>."
 
 #: templates/web/base/report/new/notes.html:1
 #: templates/web/zurich/report/new/notes.html:1
@@ -2909,7 +2909,7 @@ msgstr "Désolé, nous n'avons pas pu trouver cet emplacement."
 #: templates/web/base/report/display.html:21
 #: templates/web/base/report/new/fill_in_details_form.html:23
 msgid "Sorry, we could not log you in. Please fill in the form below."
-msgstr ""
+msgstr "Nous n'avons pas pu vous connecter."
 
 #: perllib/FixMyStreet/Geocode/Bing.pm:35
 #: perllib/FixMyStreet/Geocode/Google.pm:45
@@ -3742,7 +3742,7 @@ msgstr ""
 #: templates/web/base/report/display.html:27
 #: templates/web/base/report/new/oauth_email_form.html:5
 msgid "We need your email address, please give it below."
-msgstr ""
+msgstr "Merci d'entrer un email valide."
 
 #: templates/web/base/report/new/form_user_loggedout_email.html:2
 #: templates/web/base/report/update/form_user_loggedout_email.html:2
@@ -3802,7 +3802,7 @@ msgstr "Envoyé le"
 
 #: templates/web/base/js/translation_strings.html:50
 msgid "Whoa there Testino! Three photos are enough."
-msgstr ""
+msgstr "Vous ne pouvez envoyer que trois photos maximum."
 
 #: templates/web/base/tokens/confirm_alert.html:7
 msgid "Why stop there? <a href=\"/alert\">Set up more alerts</a> for free."
@@ -3958,7 +3958,7 @@ msgstr "Vous avez déjà joint les photos de ce rapport. Notez que vous pouvez j
 #: templates/web/base/questionnaire/index.html:83
 #: templates/web/base/report/update/form_update.html:14
 msgid "You have already attached photos to this update.  Note that you can attach a maximum of 3 to this update (if you try to upload more, the oldest will be removed)."
-msgstr ""
+msgstr "Vous ne pouvez envoyer que trois photos maximum."
 
 #: templates/web/base/auth/sign_out.html:4
 #: templates/web/zurich/auth/sign_out.html:3
@@ -4076,7 +4076,7 @@ msgstr "Votre numéro de téléphone"
 
 #: templates/web/base/questionnaire/index.html:14
 msgid "Your report"
-msgstr ""
+msgstr "Votre rapport"
 
 #: templates/web/base/footer.html:29
 msgid "Your reports"

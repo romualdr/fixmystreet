@@ -99,7 +99,7 @@ sub determine_contact_type : Private {
 
 =head2 validate
 
-Validate the form submission parameters. Sets error messages and redirect 
+Validate the form submission parameters. Sets error messages and redirect
 to index page if errors.
 
 =cut
@@ -244,6 +244,8 @@ sub send_email : Private {
     my $params = {
         to => [ [ $recipient, _($recipient_name) ] ],
     };
+
+    $params->{recipient} = $c->stash->{em};
     if (FixMyStreet::Email::test_dmarc($c->stash->{em})) {
         $params->{'Reply-To'} = [ $from ];
         $params->{from} = [ $recipient, $c->stash->{form_name} ];
