@@ -36,6 +36,7 @@ sub problem_as_hashref : Private {
     my $problem = shift;
 
     my @photos = photos_lite($problem);
+    my $photo = $photos[0][0];
 
     return {
         id        => $problem->id,
@@ -49,7 +50,7 @@ sub problem_as_hashref : Private {
         state_t   => _( $problem->state ),
         used_map  => $problem->used_map,
         is_fixed  => $problem->fixed_states->{ $problem->state } ? 1 : 0,
-        photo     => (@photos == 0 ? () : $photos[0][0]),
+        photo     => (defined $photo ? $photo : {}),
         meta      => $problem->confirmed ? $problem->meta_line( $c ) : '',
         confirmed => $problem->confirmed ? $problem->confirmed->strftime('%H:%M %Y-%m-%d'): '',
         created   => $problem->created ? $problem->created->strftime('%H:%M %Y-%m-%d') : '',
